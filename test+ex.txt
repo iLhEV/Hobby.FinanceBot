@@ -1,0 +1,2 @@
+{"update_id":838096826,
+"message":{"message_id":32,"from":{"id":1349171752,"is_bot":false,"first_name":"\u0418\u043b\u044c\u044f","last_name":"\u0414\u043e\u043c\u044b\u0448\u0435\u0432","username":"bearbaikal","language_code":"ru"},"chat":{"id":1349171752,"first_name":"\u0418\u043b\u044c\u044f","last_name":"\u0414\u043e\u043c\u044b\u0448\u0435\u0432","username":"bearbaikal","type":"private"},"date":1615927710,"text":"d"}}
