@@ -19,19 +19,65 @@ class Webhook
     {
         $this->client = new Client();
         $this->file = new File();
-        $this->db = new PDO("mysql:host=localhost;dbname=" . $GLOBALS['env']['db_base'] . ";charset=utf8mb4", $GLOBALS['env']['db_user'], $GLOBALS['env']['db_pass']);
+        $this->db = new PDO(
+            "mysql:host=localhost;dbname=" . $GLOBALS['env']['db_base'] . ";charset=utf8",
+            $GLOBALS['env']['db_user'],
+            $GLOBALS['env']['db_pass'],
+            [
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
+            ]
+        );
     }
 
     public function start()
     {
+        
         $input = file_get_contents('php://input');
         $json = json_decode($input);
-        $params = [':text' => $json->message->text];
+        $text = trim($json->message->text);
+        $params = [':text' => $text];
         $query = $this->db->prepare("INSERT INTO `tg_messages` SET `text`=:text");
         $query->execute($params);
-        $num = $query->rowCount();
-        $text = "Вставлено $num записей с текстом '" . $json->message->text . "' в БД";
+        $found = [];
+        foreach (['finance_operation'] as $func) {
+            if ($this->$func($text)) {
+                $found[] = $func;
+            }
+        }
+
+        if (count($found) === 1) {
+            return true;
+        } elseif (count($found) > 1) {
+            $this->sendMessage('Многозначно');
+        } elseif (count($found) === 0) {
+            $this->sendMessage('Не понял');
+        }
+    }
+
+    protected function finance_operation($text)
+    {
+        if (preg_match('/(*UTF8)^([а-яёa-z]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
+            $name = $matches[1];
+            $val = $matches[2];
+            $params = [':name' => $name, ':val' => $val];
+            $query = $this->db->prepare("INSERT INTO `operations` SET `name`=:name, `val`=:val");
+            $query->execute($params);            
+            if ($query->rowCount()) {
+                $this->sendMessage($matches);
+                $this->sendMessage("Операция записана");
+            } else {
+                $this->sendMessage("Ошибка записи операции в БД");
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected function sendMessage($text)
+    {
         $this->client->sendMessage($text);
+        //print_r($text);
     }
 }
 
