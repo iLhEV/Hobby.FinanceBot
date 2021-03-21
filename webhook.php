@@ -35,9 +35,6 @@ class Webhook
         $input = file_get_contents('php://input');
         $json = json_decode($input);
         $text = trim($json->message->text);
-        $params = [':text' => $text];
-        $query = $this->db->prepare("INSERT INTO `tg_messages` SET `text`=:text");
-        $query->execute($params);
         $found = [];
         foreach (['finance_operation'] as $func) {
             if ($this->$func($text)) {
@@ -49,14 +46,16 @@ class Webhook
             return true;
         } elseif (count($found) > 1) {
             $this->sendMessage('Многозначно');
+            $this->saveMessage($text, 2);
         } elseif (count($found) === 0) {
             $this->sendMessage('Не понял');
+            $this->saveMessage($text, 1);
         }
     }
 
     protected function finance_operation($text)
     {
-        if (preg_match('/(*UTF8)^([а-яёa-z]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
+        if (preg_match('/(*UTF8)^([а-яёa-z\s]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
             $name = $matches[1];
             $val = $matches[2];
             $params = [':name' => $name, ':val' => $val];
@@ -78,6 +77,13 @@ class Webhook
     {
         $this->client->sendMessage($text);
         //print_r($text);
+    }
+
+    protected function saveMessage($text, $reason)
+    {
+        $params = [':text' => $text, ':reason' => $reason];
+        $query = $this->db->prepare("INSERT INTO `tg_messages` SET `text`=:text, `reason`=:reason");
+        $query->execute($params);
     }
 }
 
