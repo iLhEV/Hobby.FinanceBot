@@ -36,12 +36,15 @@ class Webhook
         $json = json_decode($input);
         $text = trim($json->message->text);
         $found = [];
-        foreach (['finance_operation'] as $func) {
-            if ($this->$func($text)) {
-                $found[] = $func;
+        foreach ([
+                'financeOperationPattern',
+                'todayOperationsPattern'
+            ] as $pattern) {
+            if ($this->$pattern($text)) {
+                $found[] = $pattern;
             }
         }
-
+        
         if (count($found) === 1) {
             return true;
         } elseif (count($found) > 1) {
@@ -53,7 +56,7 @@ class Webhook
         }
     }
 
-    protected function finance_operation($text)
+    protected function financeOperationPattern($text)
     {
         if (preg_match('/(*UTF8)^([а-яёa-z\s]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
             $name = $matches[1];
@@ -67,6 +70,20 @@ class Webhook
             } else {
                 $this->sendMessage("Ошибка записи операции в БД");
             }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected function todayOperationsPattern($text) {
+        if (preg_match('/(*UTF8)^операции$/ui', $text, $matches)) {
+            $query = $this->db->query("SELECT * FROM `operations` WHERE created_at >= \'{date('Y-m-d')}'");
+            $answer = "";
+            foreach($query as $item) {
+                $answer .= $item['name'] . PHP_EOL;
+            }
+            $this->sendMessage($answer);
             return true;
         } else {
             return false;
