@@ -37,39 +37,34 @@ class Webhook
         $text = trim($json->message->text);
         $found = [];
         foreach ([
-                'financeOperationPattern',
-                'getOperationsPattern'
+                'addBalanceValue',
+                'writeSpendingPattern',
+                'getSpendingPattern',
+                
             ] as $pattern) {
             if ($this->$pattern($text)) {
-                $found[] = $pattern;
+                return true;
             }
         }
-        
-        if (count($found) === 1) {
-            return true;
-        } elseif (count($found) > 1) {
-            $this->sendMessage('Многозначно');
-            $this->saveMessage($text, 2);
-        } elseif (count($found) === 0) {
-            $this->sendMessage('Не понял');
-            $this->saveMessage($text, 1);
-        }
+
+        $this->sendMessage('Не понял');
+        $this->saveMessage($text, 1);
+        return false;
     }
 
-    protected function financeOperationPattern($text)
+    protected function writeSpendingPattern($text)
     {
         if (preg_match('/(*UTF8)^([а-яёa-z\s]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
             $name = $matches[1];
             $val = $matches[2];
             $params = [':name' => $name, ':val' => $val];
-            $query = $this->db->prepare("INSERT INTO `operations` SET `name`=:name, `val`=:val");
+            $query = $this->db->prepare("INSERT INTO `spendings` SET `name`=:name, `val`=:val");
             $query->execute($params);            
             if ($query->rowCount()) {
-                //$this->sendMessage($matches);
                 print_r("success");
-                $this->sendMessage("Операция записана");
+                $this->sendMessage("Трата записана");
             } else {
-                $this->sendMessage("Ошибка записи операции в БД");
+                $this->sendMessage("Ошибка записи траты в БД");
             }
             return true;
         } else {
@@ -77,10 +72,11 @@ class Webhook
         }
     }
 
-    protected function getOperationsPattern($text) {
+    protected function getSpendingPattern($text) {
         $flag = false;
         $min_date_sql = "";
         $answer = "";
+        $sum = 0;
         if ($text === "операции" || $text === "операции сегодня" || $text === "сегодня операции") {
             $min_date_sql = " WHERE created_at >= '" . date('Y-m-d') . "'";
             $flag = true;
@@ -89,17 +85,42 @@ class Webhook
             $flag = true;
         }
         if ($flag) {
-            $query = $this->db->query("SELECT * FROM `operations`" . $min_date_sql);
+            $query = $this->db->query("SELECT * FROM `spendings`" . $min_date_sql);
             foreach($query as $item) {
                 $answer .= "#" . $item['id'] . " " . date("d.m H:m", strtotime($item['created_at'])) . PHP_EOL;
                 $answer .= $item['name'] . PHP_EOL;
                 $answer .= $item['val'] . PHP_EOL;
+                $sum += $item['val'];
                 $answer .= PHP_EOL;
             }
+            $answer .= "Общая сумма: " . $sum;
             $this->sendMessage($answer);
             return true;
         }
         return false;
+    }
+
+    protected function addBalanceValue($text)
+    {
+        if (preg_match('/(*UTF8)^баланс\s([а-яёa-z\s]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
+            $account = $matches[1];
+            $val = $matches[2];
+            $params = [':name' => $account];
+            $query = $this->db->prepare("SELECT * FROM `accounts` WHERE `name`=:name");
+            $query->execute($params);
+            print_r('me');
+            print_r($query->fetch()['id']);
+            return true;
+            
+            if ($query->rowCount()) {
+                print_r('dfdfd');
+                print_r($query->fetch());
+                return true;
+            } else {
+                $this->sendMessage('Счёт с таким именем не найден');
+            }
+            
+        }
     }
 
     protected function sendMessage($text)
