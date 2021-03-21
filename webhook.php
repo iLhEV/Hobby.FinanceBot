@@ -38,7 +38,7 @@ class Webhook
         $found = [];
         foreach ([
                 'financeOperationPattern',
-                'todayOperationsPattern'
+                'getOperationsPattern'
             ] as $pattern) {
             if ($this->$pattern($text)) {
                 $found[] = $pattern;
@@ -65,7 +65,8 @@ class Webhook
             $query = $this->db->prepare("INSERT INTO `operations` SET `name`=:name, `val`=:val");
             $query->execute($params);            
             if ($query->rowCount()) {
-                $this->sendMessage($matches);
+                //$this->sendMessage($matches);
+                print_r("success");
                 $this->sendMessage("Операция записана");
             } else {
                 $this->sendMessage("Ошибка записи операции в БД");
@@ -76,18 +77,29 @@ class Webhook
         }
     }
 
-    protected function todayOperationsPattern($text) {
-        if (preg_match('/(*UTF8)^операции$/ui', $text, $matches)) {
-            $query = $this->db->query("SELECT * FROM `operations` WHERE created_at >= \'{date('Y-m-d')}'");
-            $answer = "";
+    protected function getOperationsPattern($text) {
+        $flag = false;
+        $min_date_sql = "";
+        $answer = "";
+        if ($text === "операции" || $text === "операции сегодня" || $text === "сегодня операции") {
+            $min_date_sql = " WHERE created_at >= '" . date('Y-m-d') . "'";
+            $flag = true;
+        }
+        if ($text === "все операции" || $text === "операции все") {
+            $flag = true;
+        }
+        if ($flag) {
+            $query = $this->db->query("SELECT * FROM `operations`" . $min_date_sql);
             foreach($query as $item) {
+                $answer .= "#" . $item['id'] . " " . date("d.m H:m", strtotime($item['created_at'])) . PHP_EOL;
                 $answer .= $item['name'] . PHP_EOL;
+                $answer .= $item['val'] . PHP_EOL;
+                $answer .= PHP_EOL;
             }
             $this->sendMessage($answer);
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     protected function sendMessage($text)
