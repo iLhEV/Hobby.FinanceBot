@@ -37,6 +37,7 @@ class Webhook
         $text = trim($json->message->text);
         $found = [];
         foreach ([
+                'showBalanceValue',
                 'addBalanceValue',
                 'writeSpendingPattern',
                 'getSpendingPattern',
@@ -54,14 +55,13 @@ class Webhook
 
     protected function writeSpendingPattern($text)
     {
-        if (preg_match('/(*UTF8)^([а-яёa-z\s]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
+        if (preg_match('/(*UTF8)^([а-яёa-z\s\,0-9\-]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
             $name = $matches[1];
             $val = $matches[2];
             $params = [':name' => $name, ':val' => $val];
             $query = $this->db->prepare("INSERT INTO `spendings` SET `name`=:name, `val`=:val");
             $query->execute($params);            
             if ($query->rowCount()) {
-                print_r("success");
                 $this->sendMessage("Трата записана");
             } else {
                 $this->sendMessage("Ошибка записи траты в БД");
@@ -77,11 +77,11 @@ class Webhook
         $min_date_sql = "";
         $answer = "";
         $sum = 0;
-        if ($text === "операции" || $text === "операции сегодня" || $text === "сегодня операции") {
+        if ($text === "траты" || $text === "траты сегодня" || $text === "сегодня траты") {
             $min_date_sql = " WHERE created_at >= '" . date('Y-m-d') . "'";
             $flag = true;
         }
-        if ($text === "все операции" || $text === "операции все") {
+        if ($text === "все траты" || $text === "траты все") {
             $flag = true;
         }
         if ($flag) {
@@ -100,6 +100,38 @@ class Webhook
         return false;
     }
 
+    protected function showBalanceValue($text)
+    {
+        if ($text === 'баланс') {
+            $query = $this->db->query("SELECT * FROM `accounts` ORDER BY `id` ASC");
+            $vals = [];
+            foreach($query as $account) {
+                $query1 = $this->db->query("SELECT * FROM `balance_values` WHERE `account_id` = {$account['id']} ORDER BY `id` DESC");
+                if ($query1->rowCount()) {
+                    $val = $query1->fetch();
+                    $vals[$account['name']] = [$val['val'], date("d.m H:m", strtotime($val['created_at']))];
+                } else {
+                    $vals[$account['name']] = "-";
+                }
+            }
+            $answer = "";
+            $sum = 0;
+            foreach ($vals as $account_name => $val) {
+                $answer .= $account_name . ": ";
+                if (is_array($val)) {
+                    $answer .= $val[0] . " : " . $val[1];
+                    $sum += $val[0];
+                } else {
+                    $answer .= $val;
+                }
+                $answer .= PHP_EOL;
+            }
+            $answer .= "Общий баланс: " . $sum;
+            $this->sendMessage($answer);
+            return true;
+        }
+    }
+
     protected function addBalanceValue($text)
     {
         if (preg_match('/(*UTF8)^баланс\s([а-яёa-z\s]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
@@ -108,16 +140,18 @@ class Webhook
             $params = [':name' => $account];
             $query = $this->db->prepare("SELECT * FROM `accounts` WHERE `name`=:name");
             $query->execute($params);
-            print_r('me');
-            print_r($query->fetch()['id']);
-            return true;
             
             if ($query->rowCount()) {
-                print_r('dfdfd');
-                print_r($query->fetch());
+                $account_id = $query->fetch()['id'];
+                $params = ['account_id' => $account_id, ':val' => $val];
+                $query1 = $this->db->prepare("INSERT INTO `balance_values` SET `account_id`=:account_id, `val`=:val");
+                $query1->execute($params);
+                if($query1->rowCount()) {
+                    $this->sendMessage('Значение записано');
+                }
                 return true;
             } else {
-                $this->sendMessage('Счёт с таким именем не найден');
+                $this->sendMessage('Нет такого счёта');
             }
             
         }
