@@ -2,12 +2,12 @@
 
 include "./classes/client.php";
 include "./classes/file.php";
-include "./classes/db.php";
+include "./facades/db.php";
+include "./classes/database.php";
 include "./config/db.php";
 
 error_reporting(E_ALL & ~E_NOTICE);
 ini_set('error_reporting', E_ALL);
-
 
 class Webhook
 { 
@@ -173,5 +173,10 @@ class Webhook
 
 $webhook = new Webhook();
 $webhook->start();
+
+$database = new Database();
+//$database->select();
+DB::setFacadeApplication($database);
+DB::select();
 
 ?>

@@ -1,13 +1,13 @@
 <?php
 
-class Db
+class Spending
 {
     public function __construct()
     {
-        // return ;
+        
     }
-
-    protected function connect()
+    public function get()
     {
+
     }
 }
