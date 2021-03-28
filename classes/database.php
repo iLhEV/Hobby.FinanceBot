@@ -2,16 +2,17 @@
 
 class Database
 {
-    private $conn;
+    private $pdo;
+    private $st;
 
     public function __construct()
     {
-        $this->conn = $this->connect();
+        return $this->pdo = $this->conn();
     }
 
-    protected function connect()
+    private function conn()
     {
-        $this->conn = new PDO(
+        return new PDO(
             "mysql:host=localhost;dbname={$GLOBALS['env']['db_base']};charset=utf8",
             $GLOBALS['env']['db_user'],
             $GLOBALS['env']['db_pass'],
@@ -21,8 +22,18 @@ class Database
         );
     }    
 
-    public function select()
+    public function prepare($sql)
     {
-        print_r("select answer");
+        return $this->pdo->prepare($sql);
+    }
+
+    public function execute()
+    {
+        return $this->pdo->execute(); 
+    }
+
+    public function query($sql)
+    {
+        return $this->pdo->query($sql);
     }
 }
