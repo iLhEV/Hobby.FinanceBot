@@ -33,4 +33,29 @@ class BalanceController
             return true;
         }
     }
+
+    public function addValue($text)
+    {
+        if (preg_match('/(*UTF8)^баланс\s([а-яёa-z\s]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
+            $account = $matches[1];
+            $val = $matches[2];
+            $params = [':name' => $account];
+            $query = DB::prepare("SELECT * FROM `accounts` WHERE `name`=:name");
+            $query->execute($params);
+            
+            if ($query->rowCount()) {
+                $account_id = $query->fetch()['id'];
+                $params = ['account_id' => $account_id, ':val' => $val];
+                $query1 = DB::prepare("INSERT INTO `balance_values` SET `account_id`=:account_id, `val`=:val");
+                $query1->execute($params);
+                if($query1->rowCount()) {
+                    Tlgr::sendMessage('Значение записано');
+                }
+                return true;
+            } else {
+                Tlgr::sendMessage('Нет такого счёта');
+            }
+            
+        }
+    }
 }
