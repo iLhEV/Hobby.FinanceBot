@@ -9,12 +9,6 @@ ini_set('error_reporting', E_ALL);
 
 Autoloader::register();
 
-$database = new Database();
-DB::setFacadeApplication($database);
-
-$tlgr = new TlgrClient();
-Tlgr::setFacadeApplication($tlgr);
-
 class Webhook
 { 
     protected $client = null;

@@ -1,24 +1,9 @@
 <?php
 
-class Tlgr
+class Tlgr extends Facade
 {
-    private static $app;
-
-
-    private static function getFacadeRoot()
+    public static function getFacadeAccessor()
     {
-        return self::$app;
-    }
-
-    public static function setFacadeApplication($app)
-    {
-        self::$app = $app;
-    }
-
-    public static function __callStatic($method, $args)
-    {
-        $instance = static::getFacadeRoot();
-
-        return $instance->$method(...$args);
+        return 'TlgrClient';
     }
 }
