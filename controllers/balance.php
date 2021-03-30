@@ -16,8 +16,7 @@ class BalanceController
                     $vals[$account['name']] = "-";
                 }
             }
-            $answer = "";
-            $sum = 0;
+            $sum = 0; $answer = "";
             foreach ($vals as $account_name => $val) {
                 $answer .= $account_name . ": ";
                 if (is_array($val)) {
@@ -28,7 +27,8 @@ class BalanceController
                 }
                 $answer .= PHP_EOL;
             }
-            $answer .= "Общий баланс: " . $sum;
+            $answer .= "Фактический баланс: " . $sum . PHP_EOL;
+            $answer .= "Расчётный баланс: " . $this->countedBalance()[2];
             Tlgr::sendMessage($answer);
             return true;
         }
@@ -57,5 +57,15 @@ class BalanceController
             }
             
         }
+    }
+
+    private function countedBalance()
+    {
+         
+        $st = DB::query("SELECT sum(val) as summa FROM `incomes`");
+        if (!$income_sum = $st->fetchColumn()) $income_sum = 0;
+        $st = DB::query("SELECT sum(val) as summa FROM `spendings`");
+        if (!$spending_sum = $st->fetchColumn()) $spending_sum = 0;
+        return [$income_sum, $spending_sum, $income_sum - $spending_sum];
     }
 }

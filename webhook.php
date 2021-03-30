@@ -1,19 +1,13 @@
 <?php
 
+include "./autoloader.php";
 include "./func/global_func.php";
-include "./classes/tlgr.php";
-include "./classes/file.php";
-include "./facades/db.php";
-include "./facades/tlgr.php";
-include "./classes/database.php";
-// include "./models/model.php";
-// include "./models/account.php";
-include "./controllers/balance.php";
-include "./controllers/spending.php";
 include "./config/db.php";
 
 error_reporting(E_ALL & ~E_NOTICE);
 ini_set('error_reporting', E_ALL);
+
+Autoloader::register();
 
 $database = new Database();
 DB::setFacadeApplication($database);
@@ -42,7 +36,8 @@ class Webhook
             ['balance', 'get'],
             ['balance', 'addValue'],
             ['spending', 'add'],
-            ['spending', 'get']
+            ['spending', 'get'],
+            ['spending', 'getByCategories']
         ] as $route) {
             $class = ucfirst($route[0]);
             $action = $route[1];
