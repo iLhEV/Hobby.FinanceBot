@@ -1,10 +1,5 @@
 <?php
 
-// namespace Controllers;
-
-// use Model\Spending;
-// use Facade\DB;
-
 class SpendingController
 {
     public function add($text)
@@ -66,38 +61,31 @@ class SpendingController
     
     public function getByCategories($text)
     {
-        if ($text == 'категории' || $text == 'траты по категориям') {
-            $spending = new SpendingModel();
-            $counters = $spending->getCategoriesCounters();
-            arsort($counters);
-            $answer = ""; $sum_categories = 0;
-            foreach ($counters as $category => $val) {
-                $fval = $this->prepareNumber($val);
-                $answer .= $category . ": " . $fval . PHP_EOL;
-                $sum_categories += $val;
+        if ($text === 'категории') {
+            $categories = [
+                'здоровье' => ['узи', 'уролог', 'антибиотик', 'микро-кинезио'],
+                'транспорт' => ['маршрутка', 'электричка', 'автобус', 'такси'],
+                'дети' => ['алименты'],
+                'продукты' => ['мармелад', 'чурчхела', 'халва', 'зелень', 'масло', 'пахлава'],
+            ];
+            foreach ($categories as $category => $words) {
+                $counters[$category] = 0;
             }
-            $st = DB::query("SELECT sum(val) FROM `spendings`");
-            $sum = $st->fetchColumn();
-            $answer .= "не определена: " . ($sum - $sum_categories) . PHP_EOL;
-            $answer .= "итого: " . $this->prepareNumber($sum) . PHP_EOL;
+            foreach ($categories as $category => $words) {
+                foreach ($words as $word) {
+                    $st = DB::query("SELECT * FROM `spendings` WHERE `name` LIKE '%" . $word . "%'");
+                    foreach ($st as $spending) {
+                        $counters[$category] += $spending['val'];
+                    }
+                }
+            }
+            print_r($counters);
+            $answer = "";
+            foreach ($counters as $category => $val) {
+                $answer .= $category . ":" . $val . PHP_EOL;
+            }
             Tlgr::sendMessage($answer);
             return true;
         }
-
-        if ($text == 'категория не определена') {
-            $spending = new SpendingModel();
-            $spendings = $spending->getSpendingsWithoutCategory();
-            $answer = "";
-            foreach ($spendings as $spending) {
-                $answer .= $spending['name'] . PHP_EOL;
-            }
-            if ($answer == "") $answer = "Такие траты отсутствуют";
-            Tlgr::sendMessage("Траты с категорией 'не определена':" . PHP_EOL . $answer);
-            return true;
-        }
-    }
-    private function prepareNumber($val)
-    {
-        return number_format($val, 0, '', ' ');
     }
 }

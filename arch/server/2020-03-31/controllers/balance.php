@@ -1,7 +1,5 @@
 <?php
 
-// namespace Controllers;
-
 class BalanceController
 {
     public function get($text)

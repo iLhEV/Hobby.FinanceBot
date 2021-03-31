@@ -1,14 +1,26 @@
 <?php
 
-include "./autoloader.php";
 include "./func/global_func.php";
+include "./classes/tlgr.php";
+include "./classes/file.php";
+include "./facades/db.php";
+include "./facades/tlgr.php";
+include "./classes/database.php";
+//include "./classes/date.php";
+// include "./models/model.php";
+// include "./models/account.php";
+include "./controllers/balance.php";
+include "./controllers/spending.php";
 include "./config/db.php";
-//include "./models/spending.php";
 
 error_reporting(E_ALL & ~E_NOTICE);
 ini_set('error_reporting', E_ALL);
 
-Autoloader::register();
+$database = new Database();
+DB::setFacadeApplication($database);
+
+$tlgr = new TlgrClient();
+Tlgr::setFacadeApplication($tlgr);
 
 class Webhook
 { 
@@ -36,7 +48,7 @@ class Webhook
         ] as $route) {
             $class = ucfirst($route[0]);
             $action = $route[1];
-            $controller = "" . $class . 'Controller';
+            $controller = $class . 'Controller';
             $cntr = new $controller();
             if ($cntr->$action($text)) {
                 return true;

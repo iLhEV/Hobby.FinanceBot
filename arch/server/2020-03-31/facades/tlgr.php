@@ -1,7 +1,5 @@
 <?php
 
-// namespace Facades;
-// use Classes\Facade;
 class Tlgr
 {
     private static $app;
@@ -22,10 +20,5 @@ class Tlgr
         $instance = static::getFacadeRoot();
 
         return $instance->$method(...$args);
-    }
-
-    public static function getFacadeAccessor()
-    {
-        return 'TlgrClient';
     }
 }

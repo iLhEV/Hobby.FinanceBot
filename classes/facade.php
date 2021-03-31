@@ -1,5 +1,5 @@
 <?php
-
+// namespace Classes;
 class Facade
 {
     private static $app;
