@@ -5,7 +5,11 @@ class TlgrClient
 
     public function sendMessage($text)
     {
-        $text_params = http_build_query( ['text' => $text] );
-        file_get_contents($this->api . $text_params);
+        if ($GLOBALS['http_answer']) {
+            p($text);
+        } else {
+            $text_params = http_build_query( ['text' => $text] );
+            file_get_contents($this->api . $text_params);
+        }
     }
 }

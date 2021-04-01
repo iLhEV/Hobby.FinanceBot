@@ -31,7 +31,7 @@ class SpendingController
         $min_date_sql = "";
         $answer = "";
         $sum = 0;
-        if ($text === "траты" || $text === "траты сегодня" || $text === "сегодня траты") {
+        if ($text === "траты сегодня" || $text === "сегодня траты") {
             $min_date_sql = " WHERE created_at >= '" . date('Y-m-d') . "'";
             $flag = true;
         }
@@ -43,6 +43,10 @@ class SpendingController
         if ($text === "траты две недели" || $text === "траты 2 недели" || $text === "траты за две недели") {
             $date = new DateTime(); $date->sub(new DateInterval('P2W'));
             $min_date_sql = " WHERE created_at >= '" . $date->format('Y-m-d') . "'";
+            $flag = true;
+        }
+        if ($text === "траты" || $text === "траты этот месяц") {
+            $min_date_sql = " WHERE created_at >= '" . date('Y-m-01') . "'";
             $flag = true;
         }
         if ($text === "все траты" || $text === "траты все") {
@@ -66,9 +70,22 @@ class SpendingController
     
     public function getByCategories($text)
     {
-        if ($text == 'категории' || $text == 'траты по категориям') {
-            $spending = new SpendingModel();
-            $counters = $spending->getCategoriesCounters();
+        $spendingModel = new SpendingModel();
+        $date_from = false; $date_to = false;
+        $cat_flag = false;
+        if (preg_match("/(*UTF8)^категории\s([0-9]{1,2})\.([0-9]{1,2})$/ui", $text, $matches)) {
+            $cat_flag = true; $date_from = date("Y") . "-" .  $matches[2] . "-" .  $matches[1];
+        } elseif (preg_match("/(*UTF8)^категории\s([0-9]{1,2})$/ui", $text, $matches)) {
+            $cat_flag = true;
+            $date_from = date("Y") . "-" .  (strlen($matches[1]) == 1 ? "0" . $matches[1] : $matches[1]) . "-01";
+            $days_number = date('t', mktime(0, 0, 0, $matches[1], 1, date('Y')));
+            $date_to = date("Y") . "-" .  (strlen($matches[1]) == 1 ? "0" . $matches[1] : $matches[1]) . "-" . $days_number;
+        } elseif (($text == 'категории' || $text == 'траты по категориям')) {
+            $cat_flag = true; $date_from = date("Y-m-01");
+        }
+
+        if ($cat_flag) {
+            $counters = $spendingModel->getCategoriesCounters($date_from, $date_to);
             arsort($counters);
             $answer = ""; $sum_categories = 0;
             foreach ($counters as $category => $val) {
@@ -76,8 +93,7 @@ class SpendingController
                 $answer .= $category . ": " . $fval . PHP_EOL;
                 $sum_categories += $val;
             }
-            $st = DB::query("SELECT sum(val) FROM `spendings`");
-            $sum = $st->fetchColumn();
+            $sum = $spendingModel->getSum($date_from, $date_to);
             $answer .= "не определена: " . ($sum - $sum_categories) . PHP_EOL;
             $answer .= "итого: " . $this->prepareNumber($sum) . PHP_EOL;
             Tlgr::sendMessage($answer);
@@ -85,8 +101,7 @@ class SpendingController
         }
 
         if ($text == 'категория не определена') {
-            $spending = new SpendingModel();
-            $spendings = $spending->getSpendingsWithoutCategory();
+            $spendings = $spendingModel->getSpendingsWithoutCategory();
             $answer = "";
             foreach ($spendings as $spending) {
                 $answer .= $spending['name'] . PHP_EOL;

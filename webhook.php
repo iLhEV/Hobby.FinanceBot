@@ -22,17 +22,17 @@ class Webhook
 
     public function start()
     {
-        
         $input = file_get_contents('php://input');
         $json = json_decode($input);
         $text = mb_strtolower(trim($json->message->text));
+        $json->message->http_answer ? $GLOBALS['http_answer'] = true : $GLOBALS['http_answer'] = false;
         $found = [];
         foreach([
             ['balance', 'get'],
             ['balance', 'addValue'],
+            ['spending', 'getByCategories'],
             ['spending', 'add'],
             ['spending', 'get'],
-            ['spending', 'getByCategories']
         ] as $route) {
             $class = ucfirst($route[0]);
             $action = $route[1];
