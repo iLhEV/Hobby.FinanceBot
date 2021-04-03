@@ -1,8 +1,8 @@
 <?php
 
-// namespace Facades;
-// use Classes\Facade;
-class Tlgr
+namespace Facades;
+
+class Spending
 {
     private static $app;
 
@@ -26,6 +26,6 @@ class Tlgr
 
     public static function getFacadeAccessor()
     {
-        return 'TlgrClient';
+        return 'Models\Spending';
     }
 }

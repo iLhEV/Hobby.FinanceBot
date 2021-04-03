@@ -1,6 +1,6 @@
 <?php
 
-// namespace Facades;
+namespace Facades;
 // use Classes\Facade;
 class DB
 {
@@ -26,6 +26,6 @@ class DB
 
     public static function getFacadeAccessor()
     {
-        return 'Database';
+        return 'Classes\Database';
     }
 }

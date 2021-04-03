@@ -1,8 +1,10 @@
 <?php
 
-// namespace Model;
+namespace Models;
 
-class SpendingModel
+use Facades\DB;
+
+class Spending
 {
     //Search words to define category
     public static $categories = [

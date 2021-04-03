@@ -1,6 +1,10 @@
 <?php
 
-// namespace Controllers;
+namespace Controllers;
+
+use Facades\DB;
+use Facades\Spending;
+use Facades\Tlgr;
 
 class BalanceController
 {

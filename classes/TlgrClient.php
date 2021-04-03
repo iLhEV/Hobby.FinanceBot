@@ -1,4 +1,7 @@
 <?php
+
+namespace Classes;
+
 class TlgrClient
 {
     public $api = "https://api.telegram.org/bot1722248171:AAGJPqhLEsHn_oYx9ldGbaYR68vu7NmVrG8/sendMessage?chat_id=1349171752&";

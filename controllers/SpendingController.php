@@ -1,9 +1,12 @@
 <?php
 
-// namespace Controllers;
+namespace Controllers;
 
-// use Model\Spending;
-// use Facade\DB;
+use Facades\DB;
+use Facades\Spending;
+use Facades\Tlgr;
+use \DateInterval;
+use \DateTime;
 
 class SpendingController
 {
@@ -70,7 +73,6 @@ class SpendingController
     
     public function getByCategories($text)
     {
-        $spendingModel = new SpendingModel();
         $date_from = false; $date_to = false;
         $cat_flag = false;
         if (preg_match("/(*UTF8)^категории\s([0-9]{1,2})\.([0-9]{1,2})$/ui", $text, $matches)) {
@@ -85,7 +87,7 @@ class SpendingController
         }
 
         if ($cat_flag) {
-            $counters = $spendingModel->getCategoriesCounters($date_from, $date_to);
+            $counters = Spending::getCategoriesCounters($date_from, $date_to);
             arsort($counters);
             $answer = ""; $sum_categories = 0;
             foreach ($counters as $category => $val) {
@@ -93,15 +95,15 @@ class SpendingController
                 $answer .= $category . ": " . $fval . PHP_EOL;
                 $sum_categories += $val;
             }
-            $sum = $spendingModel->getSum($date_from, $date_to);
+            $sum = Spending::getSum($date_from, $date_to);
             $answer .= "не определена: " . ($sum - $sum_categories) . PHP_EOL;
             $answer .= "итого: " . $this->prepareNumber($sum) . PHP_EOL;
             Tlgr::sendMessage($answer);
             return true;
         }
 
-        if ($text == 'категория не определена') {
-            $spendings = $spendingModel->getSpendingsWithoutCategory();
+        if ($text == 'категория не определена' || $text == 'не опр') {
+            $spendings = Spending::getSpendingsWithoutCategory();
             $answer = "";
             foreach ($spendings as $spending) {
                 $answer .= $spending['name'] . PHP_EOL;
