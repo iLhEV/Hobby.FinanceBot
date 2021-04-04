@@ -56,6 +56,12 @@ class Spending
         $res = DB::query("SELECT sum(val) FROM `spendings`" . $dates_sql);
         return $res->fetchColumn();
     }
+    public function getTotal()
+    {
+        $query = DB::query("SELECT sum(val) as summa FROM `spendings`");
+        if (!$spending_sum = $query->fetchColumn()) $spending_sum = 0;
+        return $spending_sum;
+    }
     //Find spendings without defined category
     public function getSpendingsWithoutCategory()
     {
@@ -75,5 +81,29 @@ class Spending
         }
 
         return $spendings_without_category;
+    }
+
+    //Add spending model
+    public function add($name, $val)
+    {
+        $params = [':name' => $name, ':val' => $val];
+        $query = DB::prepare("INSERT INTO `spendings` SET `name`=:name, `val`=:val");
+        $query->execute($params);            
+        if ( $query->rowCount()) {
+            return DB::lastInsertId();
+        } else {
+            return false;
+        }
+    }
+    //Get by dates
+    public function getByDates($date_from = false, $date_to = false)
+    {
+        $where_sql = "";
+        if ($date_from) $where_sql = "created_at >= '" . $date_from . "'";
+        if ($where_sql && $date_to) $where_sql .= " AND ";
+        if ($date_to) $where_sql .= "created_at <= '" . $date_to . "'";
+        if ($where_sql) $where_sql = " WHERE " . $where_sql;
+        print_r($where_sql);
+        return DB::query("SELECT * FROM `spendings` " . $where_sql);
     }
 }

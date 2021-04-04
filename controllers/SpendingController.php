@@ -2,7 +2,6 @@
 
 namespace Controllers;
 
-use Facades\DB;
 use Facades\Spending;
 use Facades\Tlgr;
 use \DateInterval;
@@ -13,12 +12,7 @@ class SpendingController
     public function add($text)
     {
         if (preg_match('/(*UTF8)^([а-яёa-z\s\,0-9\-]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
-            $name = $matches[1];
-            $val = $matches[2];
-            $params = [':name' => $name, ':val' => $val];
-            $query = DB::prepare("INSERT INTO `spendings` SET `name`=:name, `val`=:val");
-            $query->execute($params);            
-            if ($query->rowCount()) {
+            if (Spending::add($matches[1], $matches[2])) {
                 Tlgr::sendMessage("Трата записана");
             } else {
                 Tlgr::sendMessage("Ошибка записи траты в БД");
@@ -31,32 +25,32 @@ class SpendingController
 
     public function get($text) {
         $flag = false;
-        $min_date_sql = "";
+        $date_from = "";
         $answer = "";
         $sum = 0;
         if ($text === "траты сегодня" || $text === "сегодня траты") {
-            $min_date_sql = " WHERE created_at >= '" . date('Y-m-d') . "'";
+            $date_from = date('Y-m-d');
             $flag = true;
         }
         if ($text === "траты неделя" || $text === "неделя траты" || $text === "траты за неделю") {
             $date = new DateTime(); $date->sub(new DateInterval('P1W'));
-            $min_date_sql = " WHERE created_at >= '" . $date->format('Y-m-d') . "'";
+            $date_from = $date->format('Y-m-d');
             $flag = true;
         }
         if ($text === "траты две недели" || $text === "траты 2 недели" || $text === "траты за две недели") {
             $date = new DateTime(); $date->sub(new DateInterval('P2W'));
-            $min_date_sql = " WHERE created_at >= '" . $date->format('Y-m-d') . "'";
+            $date_from = $date->format('Y-m-d');
             $flag = true;
         }
-        if ($text === "траты" || $text === "траты этот месяц") {
-            $min_date_sql = " WHERE created_at >= '" . date('Y-m-01') . "'";
+        if ($text === "траты" || $text === "тр" || $text === "траты этот месяц") {
+            $date_from = date('Y-m-01');
             $flag = true;
         }
         if ($text === "все траты" || $text === "траты все") {
             $flag = true;
         }
         if ($flag) {
-            $query = DB::query("SELECT * FROM `spendings`" . $min_date_sql);
+            $query = Spending::getByDates($date_from);
             foreach($query as $item) {
                 $answer .= "#" . $item['id'] . " " . date("d.m H:m", strtotime($item['created_at'])) . PHP_EOL;
                 $answer .= $item['name'] . PHP_EOL;
@@ -75,14 +69,14 @@ class SpendingController
     {
         $date_from = false; $date_to = false;
         $cat_flag = false;
-        if (preg_match("/(*UTF8)^категории\s([0-9]{1,2})\.([0-9]{1,2})$/ui", $text, $matches)) {
+        if (preg_match("/(*UTF8)^категории\s([0-9]{1,2})\.([0-9]{1,2})$/ui", $text, $matches) || preg_match("/(*UTF8)^кат\s([0-9]{1,2})\.([0-9]{1,2})$/ui", $text, $matches)) {
             $cat_flag = true; $date_from = date("Y") . "-" .  $matches[2] . "-" .  $matches[1];
-        } elseif (preg_match("/(*UTF8)^категории\s([0-9]{1,2})$/ui", $text, $matches)) {
+        } elseif (preg_match("/(*UTF8)^категории\s([0-9]{1,2})$/ui", $text, $matches) || preg_match("/(*UTF8)^кат\s([0-9]{1,2})$/ui", $text, $matches) ) {
             $cat_flag = true;
             $date_from = date("Y") . "-" .  (strlen($matches[1]) == 1 ? "0" . $matches[1] : $matches[1]) . "-01";
             $days_number = date('t', mktime(0, 0, 0, $matches[1], 1, date('Y')));
             $date_to = date("Y") . "-" .  (strlen($matches[1]) == 1 ? "0" . $matches[1] : $matches[1]) . "-" . $days_number;
-        } elseif (($text == 'категории' || $text == 'траты по категориям')) {
+        } elseif (($text == 'категории' || $text == 'кат' || $text == 'свод' || $text == 'св' || $text == 'траты по категориям')) {
             $cat_flag = true; $date_from = date("Y-m-01");
         }
 
@@ -102,7 +96,7 @@ class SpendingController
             return true;
         }
 
-        if ($text == 'категория не определена' || $text == 'не опр') {
+        if ($text == 'категория не определена' || $text == 'не опр' || $text == 'неопр'  || $text == 'неоп') {
             $spendings = Spending::getSpendingsWithoutCategory();
             $answer = "";
             foreach ($spendings as $spending) {

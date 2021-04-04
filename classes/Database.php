@@ -40,4 +40,8 @@ class Database
     {
         return $this->pdo->query($sql);
     }
+    public function lastInsertId()
+    {
+        return $this->pdo->lastInsertId();
+    }
 }
