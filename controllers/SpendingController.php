@@ -76,7 +76,7 @@ class SpendingController
             $date_from = date("Y") . "-" .  (strlen($matches[1]) == 1 ? "0" . $matches[1] : $matches[1]) . "-01";
             $days_number = date('t', mktime(0, 0, 0, $matches[1], 1, date('Y')));
             $date_to = date("Y") . "-" .  (strlen($matches[1]) == 1 ? "0" . $matches[1] : $matches[1]) . "-" . $days_number;
-        } elseif (($text == 'категории' || $text == 'кат' || $text == 'свод' || $text == 'св' || $text == 'траты по категориям')) {
+        } elseif (($text == 'категории' || $text == 'кат' || $text == 'ка' || $text == 'свод' || $text == 'св' || $text == 'траты по категориям')) {
             $cat_flag = true; $date_from = date("Y-m-01");
         }
 
