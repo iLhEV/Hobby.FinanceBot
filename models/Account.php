@@ -19,4 +19,16 @@ class Account
         $query->execute($params);
         return $query;
     }
+    //Add fixations to balance
+    public function makeFixation($date)
+    {
+        $params = [':date' => $date];
+        $query = DB::prepare("INSERT INTO `fixations` SET `date`=:date");
+        $query->execute($params);
+        if ($query->rowCount()) {
+            return DB::lastInsertId();
+        } else {
+            return false;
+        }
+    }
 }

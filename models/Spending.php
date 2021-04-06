@@ -91,7 +91,7 @@ class Spending
         $params = [':name' => $name, ':val' => $val];
         $query = DB::prepare("INSERT INTO `spendings` SET `name`=:name, `val`=:val");
         $query->execute($params);            
-        if ( $query->rowCount()) {
+        if ($query->rowCount()) {
             return DB::lastInsertId();
         } else {
             return false;
