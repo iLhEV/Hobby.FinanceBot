@@ -3,24 +3,24 @@
 namespace Models;
 
 use Facades\DB;
+use Facades\BalanceValues;
 
-class Fixation
+class BalanceFixation
 {
     //Create fixation
-    public function create($date)
+    public function create()
     {
-        $params = [':date' => $date];
-        $query = DB::prepare("INSERT INTO `fixations` SET `date`=:date");
-        $query->execute($params);
+        $total = BalanceValues::total();
+        $query = DB::query("INSERT INTO `balance_fixations` SET `total`={$total}");
         if ($query->rowCount()) {
-            return DB::lastInsertId();
+            return $total;
         } else {
             return false;
         }
     }
     public function getAll()
     {
-        $query = DB::query("SELECT * FROM `fixations` ORDER BY `id` ASC");
+        $query = DB::query("SELECT * FROM `balance_fixations` ORDER BY `id` ASC");
         if ($query->rowCount()) {
             return $query;
         } else {

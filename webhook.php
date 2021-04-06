@@ -28,8 +28,8 @@ class Webhook
         $found = [];
         
         foreach([
-            ['fixation', 'make'],
-            ['fixation', 'getAll'],
+            ['BalanceFixation', 'make'],
+            ['BalanceFixation', 'getAll'],
             ['income', 'add'],
             ['income', 'get'],
             ['balance', 'get'],

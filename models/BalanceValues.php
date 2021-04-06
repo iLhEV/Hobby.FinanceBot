@@ -3,6 +3,7 @@
 namespace Models;
 
 use Facades\DB;
+use Facades\Account;
 
 class BalanceValues
 {
@@ -18,5 +19,18 @@ class BalanceValues
         $query = DB::prepare("INSERT INTO `balance_values` SET `account_id`=:account_id, `val`=:val");
         $query->execute($params);
         return $query;
+    }
+    //Count total for all accounts
+    public function total()
+    {
+        $query = Account::getAll();
+        $sum = 0;
+        foreach($query as $account) {
+            $query1 = $this->getByAccountId($account['id']);
+            if ($query1->rowCount()) {
+                $sum += floatval($query1->fetch()['val']);
+            }
+        }
+        return $sum;
     }
 }

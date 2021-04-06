@@ -2,7 +2,7 @@
 
 namespace Facades;
 
-class Fixation
+class BalanceFixation
 {
     private static $app;
 
@@ -26,6 +26,6 @@ class Fixation
 
     public static function getFacadeAccessor()
     {
-        return 'Models\Fixation';
+        return 'Models\BalanceFixation';
     }
 }
