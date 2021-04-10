@@ -13,9 +13,12 @@ class Rule
     {
         $this->name = $name;
     }
-    public function addExactMatch($phrase)
+    public function addExactMatches($phrases)
     {
-        $this->exactMatches[] = $phrase;
+        foreach ($phrases as $phrase) {
+            if (!in_array($phrase, $this->exactMatches)) $this->exactMatches[] = $phrase;
+        }
+        return true;
     }
     public function addPatternMatch($pattern)
     {
@@ -27,10 +30,10 @@ class Rule
         $this->method = $method;
         return true;
     }
-    private function trigger($text)
+    public function trigger($text)
     {
         $obj = new $this->controller();
-        $obj->$this->method($text);
+        $obj->{$this->method}($text);
         return true;
     }
     //Present example of text in call
@@ -41,10 +44,12 @@ class Rule
     public function resolve($text)
     {
         $text = trim($text);
+        
         //Сначала проверка на точные совпадения
-        foreach ($this->exactMatches as $phrase) {
-            if ($text === $phrase) return $this->trigger($text);
+        foreach ($this->exactMatches as $match) {
+            if ($text === $match) return true;
         }
+        return false;
     }
     public function getName()
     {

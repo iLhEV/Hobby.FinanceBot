@@ -1,5 +1,7 @@
 <?php
 
+namespace Rules;
+
 use Classes\Rule;
 use Classes\RulesProcessor;
 
@@ -15,7 +17,7 @@ class Rules
     {
         //Пример с точным совпадением
         $rule = new Rule('просмотр баланса');
-        $rule->addExactMatch(['б', 'бал', 'баланс']);
+        $rule->addExactMatches(['б', 'бал', 'баланс']);
         $rule->addResolution('BalanceController', 'get');
         $rule->example('баланс');
         $this->rulesProcessor->addRule($rule);

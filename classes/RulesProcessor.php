@@ -30,10 +30,9 @@ class RulesProcessor
             Tlgr::sendMessage('Не понял');
             return 0;
         } else if ($count === 1) {
-            $this->resolvedRules[0]->trigger[$this->text];
+            $this->resolvedRules[0]->trigger($this->text);
             return 1;
-        }
-        if ($count > 1) {
+        } else {
             $resp = 'Запрос неоднозначен. Выберете вариант:' . PHP_EOL;
             foreach ($this->resolvedRules as $key => $rule) {
                 $resp .= "#" . $key . " " . $rule->getName() . PHP_EOL;

@@ -2,6 +2,7 @@
 
 use Classes\Store;
 use Classes\Bot;
+use Rules\Rules;
 
 include "./autoloader.php";
 include "./func/global_func.php";
@@ -30,32 +31,36 @@ class Webhook
         $text = mb_strtolower(trim($json->message->text));
         $json->message->http_answer ? $GLOBALS['http_answer'] = true : $GLOBALS['http_answer'] = false;
         $found = [];
+
+        $rules = new Rules();
+        $rules->create();
+        $rules->process($text);
         
-        foreach([
-            ['BalanceFixation', 'make'],
-            ['BalanceFixation', 'getAll'],
-            ['income', 'add'],
-            ['income', 'get'],
-            ['balance', 'get'],
-            ['balance', 'addValue'],
-            ['spending', 'getByCategories'],
-            ['spending', 'add'],
-            ['spending', 'get'],
-        ] as $route) {
-            $class = ucfirst($route[0]);
-            $action = $route[1];
-            $controller = "Controllers\\" . $class . 'Controller';
-            $cntr = new $controller();
+        // foreach([
+        //     ['BalanceFixation', 'make'],
+        //     ['BalanceFixation', 'getAll'],
+        //     ['income', 'add'],
+        //     ['income', 'get'],
+        //     ['balance', 'get'],
+        //     ['balance', 'addValue'],
+        //     ['spending', 'getByCategories'],
+        //     ['spending', 'add'],
+        //     ['spending', 'get'],
+        // ] as $route) {
+        //     $class = ucfirst($route[0]);
+        //     $action = $route[1];
+        //     $controller = "Controllers\\" . $class . 'Controller';
+        //     $cntr = new $controller();
             
-            if ($cntr->$action($text)) {
-                exit;
-                return true;
-            }
-        }
+        //     if ($cntr->$action($text)) {
+        //         exit;
+        //         return true;
+        //     }
+        // }
         
-        Facades\Tlgr::sendMessage('Не понял');
-        $this->saveMessage($text, 1);
-        return false;
+        // Facades\Tlgr::sendMessage('Не понял');
+        // $this->saveMessage($text, 1);
+        // return false;
     }
 
     protected function saveMessage($text, $reason)
