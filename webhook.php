@@ -1,5 +1,8 @@
 <?php
 
+use Classes\Store;
+use Classes\Bot;
+
 include "./autoloader.php";
 include "./func/global_func.php";
 include "./config/db.php";
@@ -17,6 +20,7 @@ class Webhook
 { 
     public function __construct()
     {
+        Store::setInstance('bot', new Bot());
     }
 
     public function start()
