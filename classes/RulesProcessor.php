@@ -30,7 +30,7 @@ class RulesProcessor
             Tlgr::sendMessage('Не понял');
             return 0;
         } else if ($count === 1) {
-            $this->resolvedRules[0]->trigger($this->text);
+            $this->resolvedRules[0]->trigger();
             return 1;
         } else {
             $resp = 'Запрос неоднозначен. Выберете вариант:' . PHP_EOL;

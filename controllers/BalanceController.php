@@ -11,55 +11,50 @@ use Facades\Tlgr;
 
 class BalanceController
 {
-    public function get($text)
+    public function get()
     {
-        if ($text == 'баланс' || $text == 'бал') {
-            $query = Account::getAll();
-            $vals = [];
-            foreach($query as $account) {
-                $query1 = BalanceValues::getByAccountId($account['id']);
-                if ($query1->rowCount()) {
-                    $val = $query1->fetch();
-                    $vals[$account['name']] = [$val['val'], date("d.m H:m", strtotime($val['created_at']))];
-                } else {
-                    $vals[$account['name']] = "-";
-                }
+        $query = Account::getAll();
+        $vals = [];
+        foreach($query as $account) {
+            $query1 = BalanceValues::getByAccountId($account['id']);
+            if ($query1->rowCount()) {
+                $val = $query1->fetch();
+                $vals[$account['name']] = [$val['val'], date("d.m H:m", strtotime($val['created_at']))];
+            } else {
+                $vals[$account['name']] = "-";
             }
-            $sum = 0; $answer = "";
-            foreach ($vals as $account_name => $val) {
-                $answer .= $account_name . ": ";
-                if (is_array($val)) {
-                    $answer .= $val[0] . " : " . $val[1];
-                    $sum += $val[0];
-                } else {
-                    $answer .= $val;
-                }
-                $answer .= PHP_EOL;
-            }
-            $answer .= "Фактический баланс: " . $sum . PHP_EOL;
-            $answer .= "Расчётный баланс: " . $this->countedBalance()[2];
-            Tlgr::sendMessage($answer);
-            return true;
         }
+        $sum = 0; $answer = "";
+        foreach ($vals as $account_name => $val) {
+            $answer .= $account_name . ": ";
+            if (is_array($val)) {
+                $answer .= $val[0] . " : " . $val[1];
+                $sum += $val[0];
+            } else {
+                $answer .= $val;
+            }
+            $answer .= PHP_EOL;
+        }
+        $answer .= "Фактический баланс: " . $sum . PHP_EOL;
+        $answer .= "Расчётный баланс: " . $this->countedBalance()[2];
+        Tlgr::sendMessage($answer);
+        return true;
     }
 
-    public function addValue($text)
+    public function setVal($input)
     {
-        if (preg_match('/(*UTF8)^баланс\s([а-яёa-z\s]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
-            $account = $matches[1];
-            $val = $matches[2];
-            $query = Account::getByName($account);
-            if ($query->rowCount()) {
-                $account_id = $query->fetch()['id'];
-                $query1 = BalanceValues::add($account_id, $val);
-                if($query1->rowCount()) {
-                    Tlgr::sendMessage('Значение записано');
-                }
-                return true;
-            } else {
-                Tlgr::sendMessage('Нет такого счёта');
+        $account = $input[0];
+        $val = $input[1];
+        $query = Account::getByName($account);
+        if ($query->rowCount()) {
+            $account_id = $query->fetch()['id'];
+            $query1 = BalanceValues::add($account_id, $val);
+            if($query1->rowCount()) {
+                Tlgr::sendMessage('Значение записано');
             }
-            
+            return true;
+        } else {
+            Tlgr::sendMessage('Нет такого счёта');
         }
     }
 

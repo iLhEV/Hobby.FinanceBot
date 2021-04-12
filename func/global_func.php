@@ -1,6 +1,6 @@
 <?php
 
-function p($value)
+function p($value = "")
 {
     if (is_array($value)) {
         foreach ($value as $key => $val) {

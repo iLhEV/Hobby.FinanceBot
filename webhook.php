@@ -2,6 +2,7 @@
 
 use Classes\Store;
 use Classes\Bot;
+use Classes\RegExp;
 use Rules\Rules;
 
 include "./autoloader.php";
@@ -26,6 +27,8 @@ class Webhook
 
     public function start()
     {
+        // p(intval(RegExp::resolve('б|бал|баланс {string} {amount}', 'баланс альфа 1.0')));
+        // exit;
         $input = file_get_contents('php://input');
         $json = json_decode($input);
         $text = mb_strtolower(trim($json->message->text));
