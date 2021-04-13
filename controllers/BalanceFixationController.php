@@ -12,33 +12,27 @@ use Facades\Tlgr;
 
 class BalanceFixationController
 {
-    public function make($text)
+    public function make()
     {
-        if ($text == "баланс фиксировать" || $text == "фиксбал") {
-            if ($total = BalanceFixation::create()) {
-                Tlgr::sendMessage('Баланс зафиксирован и равен ' . $total);
-            } else {
-                Tlgr::sendMessage('Ошибка фиксации баланса');
-            }
-            return true;
+        if ($total = BalanceFixation::create()) {
+            Tlgr::sendMessage('Баланс зафиксирован и равен ' . $total);
+        } else {
+            Tlgr::sendMessage('Ошибка фиксации баланса');
         }
-        return false;
+        return true;
     }
     
     public function getAll($text)
     {
-        if ($text == "фикс" || $text == "фиксации") {
-            if ($items = BalanceFixation::getAll()) {
-                $answer = "";
-                foreach ($items as $item) {
-                    $answer .= "#" . $item['id'] . " " . $item['total'] . " " . date("d.m H:m", strtotime($item['created_at'])) . PHP_EOL;
-                }
-                Tlgr::sendMessage($answer);
-            } else {
-                Tlgr::sendMessage("В базе нет фиксаций баланса");
+        if ($items = BalanceFixation::getAll()) {
+            $answer = "";
+            foreach ($items as $item) {
+                $answer .= "#" . $item['id'] . " " . $item['total'] . " " . date("d.m H:m", strtotime($item['created_at'])) . PHP_EOL;
             }
-            return true;
+            Tlgr::sendMessage($answer);
+        } else {
+            Tlgr::sendMessage("В базе нет фиксаций баланса");
         }
-        return false;
+        return true;
     }
 }

@@ -9,18 +9,14 @@ use \DateTime;
 
 class SpendingController
 {
-    public function add($text)
+    public function add($input)
     {
-        if (preg_match('/(*UTF8)^([а-яёa-z\s\,0-9\-]+)\s([\+\-0-9\.]+)$/ui', $text, $matches)) {
-            if (Spending::add($matches[1], $matches[2])) {
-                Tlgr::sendMessage("Трата записана");
-            } else {
-                Tlgr::sendMessage("Ошибка записи траты в БД");
-            }
-            return true;
+        if (Spending::add($input[0], $input[1])) {
+            Tlgr::sendMessage("Трата записана");
         } else {
-            return false;
+            Tlgr::sendMessage("Ошибка записи траты в БД");
         }
+        return true;
     }
 
     public function get($text) {

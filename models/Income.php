@@ -26,7 +26,7 @@ class Income
     }
     public function getAll()
     {
-        $query = DB::query("SELECT * FROM `incomes` ORDER BY `id` DESC");
+        $query = DB::query("SELECT * FROM `incomes` ORDER BY `id` ASC");
         if ($query->rowCount()) {
             return $query;
         } else {

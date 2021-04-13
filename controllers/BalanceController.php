@@ -50,7 +50,7 @@ class BalanceController
             $account_id = $query->fetch()['id'];
             $query1 = BalanceValues::add($account_id, $val);
             if($query1->rowCount()) {
-                Tlgr::sendMessage('Значение записано');
+                Tlgr::sendMessage('Значение баланса записано');
             }
             return true;
         } else {
