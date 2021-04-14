@@ -10,7 +10,8 @@ class Rule
     private $patternMatches = [];
     private $controller ='';
     private $method = '';
-    private $foundMatches = [];
+    public $foundMatches = [];
+    public $text = '';
 
     public function __construct($name)
     {
@@ -36,8 +37,7 @@ class Rule
     public function trigger()
     {
         $obj = new $this->controller();
-        count($this->foundMatches) ? $input_array = $this->foundMatches : $input_array = [];
-        $obj->{$this->method}($input_array);
+        $obj->{$this->method}($this);
         return true;
     }
     //Present example of text in call
@@ -48,6 +48,7 @@ class Rule
     public function resolve($text)
     {
         $text = trim($text);
+        $this->text = $text;
         
         //Сначала проверка на точные совпадения
         foreach ($this->exactMatches as $match) {

@@ -20,7 +20,7 @@ class IncomeController
         }
         return true;
     }
-    public function get($text)
+    public function get()
     {
         if ($items = Income::getAll()) {
             $answer = ""; $sum = 0;

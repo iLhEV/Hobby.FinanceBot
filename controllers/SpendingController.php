@@ -9,9 +9,9 @@ use \DateTime;
 
 class SpendingController
 {
-    public function add($input)
+    public function add($rule)
     {
-        if (Spending::add($input[0], $input[1])) {
+        if (Spending::add($rule->foundMatches[0], $rule->foundMatches[1])) {
             Tlgr::sendMessage("Трата записана");
         } else {
             Tlgr::sendMessage("Ошибка записи траты в БД");

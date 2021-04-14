@@ -22,7 +22,7 @@ class BalanceFixationController
         return true;
     }
     
-    public function getAll($text)
+    public function getAll()
     {
         if ($items = BalanceFixation::getAll()) {
             $answer = "";

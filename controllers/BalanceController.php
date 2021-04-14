@@ -41,10 +41,10 @@ class BalanceController
         return true;
     }
 
-    public function setVal($input)
+    public function setVal($rule)
     {
-        $account = $input[0];
-        $val = $input[1];
+        $account = $rule->foundMatches[0];
+        $val = $rule->foundMatches[1];
         $query = Account::getByName($account);
         if ($query->rowCount()) {
             $account_id = $query->fetch()['id'];
