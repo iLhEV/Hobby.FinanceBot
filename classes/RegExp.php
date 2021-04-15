@@ -9,9 +9,13 @@ class RegExp
         $regs = explode(' ', $pattern);
         $pieces = explode(' ', $text);
         $matches = [];
-        foreach ($regs as $i => $reg) {
-            if(!isset($pieces[$i])) return false;
-            $piece = $pieces[$i];
+        $diff = count($pieces) - count($regs);
+        if ($diff < 0) return self::generateError('Количество слов в haystack меньше количества участков в regexp');
+        $cursor = -1;
+        foreach ($regs as $reg) {
+            $cursor++;
+            if(!isset($pieces[$cursor])) return false;
+            $piece = $pieces[$cursor];
             switch (self::getType($reg)):
                 case 1:
                     if (array_search($piece, explode('|', $reg)) !== false) {
@@ -37,6 +41,18 @@ class RegExp
                         return false;
                     }
                 break;
+                case 4:
+                    $pieces_collection = '';
+                    $shift = 0;
+                    while ($shift <= $diff) {
+                        $pieces_collection .= $pieces[$cursor] . " ";
+                        $cursor++;
+                        $shift++;
+                    }
+                    $cursor--;
+                    $matches[] = rtrim($pieces_collection);
+                    continue 2;
+                break;
             endswitch;
         }
         if (count($matches)) return $matches;
@@ -47,15 +63,23 @@ class RegExp
         if (preg_match('/\|/', $reg)) {
             return 1;
         }
-        if (preg_match('/string/', $reg)) {
+        if (preg_match('/word/', $reg)) {
             return 2;
         }
         if (preg_match('/amount/', $reg)) {
             return 3;
         }
+        if (preg_match('/string/', $reg)) {
+            return 4;
+        }
     }
     private static function search($needle, $haystack)
     {
         return preg_match("/(*UTF8)$needle/ui", $haystack);
+    }
+    private static function generateError($message)
+    {
+        //write something here in future
+        return false;
     }
 }

@@ -22,7 +22,7 @@ class Rules
         $this->rulesProcessor->addRule($rule);
 
         $rule = new Rule('установка значения баланса');
-        $rule->addPatternMatch('б|бал|баланс {string} {amount}');
+        $rule->addPatternMatch('б|бал|баланс {word} {amount}');
         $rule->addResolution('BalanceController', 'setVal');
         // $rule->example('баланс альфа 100.00');
         $this->rulesProcessor->addRule($rule);
@@ -43,7 +43,7 @@ class Rules
         $this->rulesProcessor->addRule($rule);
 
         $rule = new Rule('добавление дохода');
-        $rule->addPatternMatch('доход|дох|дх {string} {amount}');
+        $rule->addPatternMatch('доход|дох|дх {word} {amount}');
         $rule->addResolution('IncomeController', 'add');
         $this->rulesProcessor->addRule($rule);
 
