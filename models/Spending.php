@@ -84,7 +84,6 @@ class Spending
 
         return $spendings_without_category;
     }
-
     //Add spending model
     public function add($name, $val)
     {

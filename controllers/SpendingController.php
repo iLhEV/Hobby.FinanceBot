@@ -4,9 +4,7 @@ namespace Controllers;
 
 use Facades\Spending;
 use Facades\Tlgr;
-use \DateInterval;
-use \DateTime;
-
+use Classes\DateFilter;
 class SpendingController
 {
     public function add($rule)
@@ -19,32 +17,9 @@ class SpendingController
         return true;
     }
 
-    public function get($text) {
-        $flag = false;
-        $date_from = "";
+    public function get($rule, $dateFilter) {
         $answer = "";
         $sum = 0;
-        if ($text === "траты сегодня" || $text === "сегодня траты") {
-            $date_from = date('Y-m-d');
-            $flag = true;
-        }
-        if ($text === "траты неделя" || $text === "неделя траты" || $text === "траты за неделю") {
-            $date = new DateTime(); $date->sub(new DateInterval('P1W'));
-            $date_from = $date->format('Y-m-d');
-            $flag = true;
-        }
-        if ($text === "траты две недели" || $text === "траты 2 недели" || $text === "траты за две недели") {
-            $date = new DateTime(); $date->sub(new DateInterval('P2W'));
-            $date_from = $date->format('Y-m-d');
-            $flag = true;
-        }
-        if ($text === "траты" || $text === "тр" || $text === "траты этот месяц") {
-            $date_from = date('Y-m-01');
-            $flag = true;
-        }
-        if ($text === "все траты" || $text === "траты все") {
-            $flag = true;
-        }
         if ($flag) {
             $query = Spending::getByDates($date_from);
             foreach($query as $item) {

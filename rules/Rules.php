@@ -19,6 +19,7 @@ class Rules
         $rule->addExactMatches(['б', 'бал', 'баланс']);
         $rule->addResolution('BalanceController', 'get');
         // $rule->example('баланс');
+        $rule->activateDateFilter();                
         $this->rulesProcessor->addRule($rule);
 
         $rule = new Rule('установка значения баланса');

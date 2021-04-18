@@ -12,6 +12,7 @@ class Rule
     private $method = '';
     public $foundMatches = [];
     public $text = '';
+    private $dateFilter = false;
 
     public function __construct($name)
     {
@@ -47,14 +48,21 @@ class Rule
     }
     public function resolve($text)
     {
-        $text = trim($text);
-        $this->text = $text;
+        //Apply date filter if it's activated
+        if ($this->isDateFilterActive()) {
+            $filter = new DateFilter($text);
+            $text = trim($filter->getProcessedText());
+        } else {
+            $text = trim($text);
+        }
         
-        //Сначала проверка на точные совпадения
+        $this->text = $text;
+
+        //First check for exact matches
         foreach ($this->exactMatches as $match) {
             if ($text === $match) return true;
         }
-        //Теперь проверка через шаблоны
+        //Now check for patterns
         foreach ($this->patternMatches as $match) {
             if ($found_matches = RegExp::resolve($match, $text)) {
                 if (is_array($found_matches)) $this->foundMatches = $found_matches;
@@ -66,6 +74,18 @@ class Rule
     public function getName()
     {
         return $this->name;
+    }
+    public function activateDateFilter()
+    {
+        $this->dateFilter = true;
+    }
+    public function isDateFilterActive()
+    {
+        return $this->dateFilter;
+    }
+    public function getText()
+    {
+        return $this->text;
     }
 }
 

@@ -73,13 +73,17 @@ class RegExp
             return 4;
         }
     }
-    private static function search($needle, $haystack)
+    public static function search($phrase, $text)
     {
-        return preg_match("/(*UTF8)$needle/ui", $haystack);
+        return preg_match("/(*UTF8)$phrase/ui", $text);
     }
     private static function generateError($message)
     {
         //write something here in future
         return false;
+    }
+    public static function replace($phrase, $replacement, $text, &$count, $limit = -1)
+    {
+        return preg_replace("/(*UTF8)$phrase/ui", $replacement, $text, $limit, $count);
     }
 }
