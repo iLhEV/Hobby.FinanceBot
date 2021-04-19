@@ -9,7 +9,7 @@ class DateFilter
 {
     private $inputText = '';
     private $processedText = '';
-    private $result = [];
+    private $filter = [];
 
     public function __construct($text)
     {
@@ -19,43 +19,49 @@ class DateFilter
     private function process()
     {
         $dateFrom = "";
-        if ($this->searchAndReplace("сегодня")) {
+        $flag = false;
+        if (!$flag && $this->setProcessedTextAndPeriod("сегодня")) {
             $dateFrom = date('Y-m-d');
+            $flag = true;
         }
-        if ($this->searchAndReplace("неделя")) {
+        if (!$flag && $this->setProcessedTextAndPeriod("неделя")) {
             $date = new DateTime();
             $date->sub(new DateInterval('P1W'));
             $dateFrom = $date->format('Y-m-d');
+            $flag = true;
         }
-        if (RegExp::search("две недели", $this->inputText)) {
+        if (!$flag && $this->setProcessedTextAndPeriod("две недели")) {
             $date = new DateTime(); $date->sub(new DateInterval('P2W'));
             $dateFrom = $date->format('Y-m-d');
+            $flag = true;
         }
-        if (RegExp::search("две недели", $this->inputText)) {
-            $dateFrom = date('Y-m-01');
-        }
+        // if (RegExp::search("две недели", $this->inputText)) {
+        //     $dateFrom = date('Y-m-01');
+        // }
         if ($dateFrom) {
             //Filter phrase found in text
-            $this->result = [$dateFrom, false];
+            $this->filter = [$dateFrom, false];
             return true;
         } else {
             //Filter phrase not found in text
             return false;
         }
     }
-    public function getResult()
+    public function getPeriod()
     {
-        return $this->result;
+        return $this->filter;
     }
     public function getProcessedText()
     {
         return $this->processedText;
     }
-    private function searchAndReplace($phrase)
+    private function setProcessedTextAndPeriod($phrase)
     {
+        p($phrase);
         $text = $this->inputText;
         $count = 0;
         $this->processedText = RegExp::replace("(.*)($phrase)(.*)", "$1$3", $text, $count);
+        p($count);
         return boolval($count);
     }
 }

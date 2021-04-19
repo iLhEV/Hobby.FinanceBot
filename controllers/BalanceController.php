@@ -11,8 +11,9 @@ use Facades\Tlgr;
 
 class BalanceController
 {
-    public function get()
+    public function get($rule)
     {
+        //p($rule->dateFilter->getPeriod());
         $query = Account::getAll();
         $vals = [];
         foreach($query as $account) {

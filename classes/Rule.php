@@ -12,7 +12,7 @@ class Rule
     private $method = '';
     public $foundMatches = [];
     public $text = '';
-    private $dateFilter = false;
+    public $dateFilter = false;
 
     public function __construct($name)
     {
@@ -50,8 +50,8 @@ class Rule
     {
         //Apply date filter if it's activated
         if ($this->isDateFilterActive()) {
-            $filter = new DateFilter($text);
-            $text = trim($filter->getProcessedText());
+            $this->dateFilter = new DateFilter($text);
+            $text = trim($this->dateFilter->getProcessedText());
         } else {
             $text = trim($text);
         }
@@ -81,7 +81,7 @@ class Rule
     }
     public function isDateFilterActive()
     {
-        return $this->dateFilter;
+        return boolval($this->dateFilter);
     }
     public function getText()
     {
