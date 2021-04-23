@@ -17,23 +17,21 @@ class SpendingController
         return true;
     }
 
-    public function get($rule, $dateFilter) {
+    public function get($rule) {
+        if (!$period = $rule->dateFilter->getPeriod()) $period = [false, false];
         $answer = "";
         $sum = 0;
-        if ($flag) {
-            $query = Spending::getByDates($date_from);
-            foreach($query as $item) {
-                $answer .= "#" . $item['id'] . " " . date("d.m H:m", strtotime($item['created_at'])) . PHP_EOL;
-                $answer .= $item['name'] . PHP_EOL;
-                $answer .= $item['val'] . PHP_EOL;
-                $sum += $item['val'];
-                $answer .= PHP_EOL;
-            }
-            $answer .= "Общая сумма: " . $sum;
-            Tlgr::sendMessage($answer);
-            return true;
+        $query = Spending::getByDates($period[0], $period[1]);
+        foreach($query as $item) {
+            $answer .= "#" . $item['id'] . " " . date("d.m H:m", strtotime($item['created_at'])) . PHP_EOL;
+            $answer .= $item['name'] . PHP_EOL;
+            $answer .= $item['val'] . PHP_EOL;
+            $sum += $item['val'];
+            $answer .= PHP_EOL;
         }
-        return false;
+        $answer .= "Общая сумма: " . $sum;
+        Tlgr::sendMessage($answer);
+        return true;
     }
     
     public function getByCategories($text)

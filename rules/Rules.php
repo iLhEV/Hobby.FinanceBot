@@ -51,7 +51,14 @@ class Rules
         $rule = new Rule('добавление траты');
         $rule->addPatternMatch('{string} {amount}');
         $rule->addResolution('SpendingController', 'add');
-        $this->rulesProcessor->addRule($rule);
+        $rule->setPriority(-100);        
+        $this->rulesProcessor->addRule($rule);        
+
+        $rule = new Rule('просмотр расходов');
+        $rule->addPatternMatch('тр|траты|трат|расх|расходы');
+        $rule->addResolution('SpendingController', 'get');
+        $rule->activateDateFilter();
+        $this->rulesProcessor->addRule($rule);        
     }
     public function process($text)
     {

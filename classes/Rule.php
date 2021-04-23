@@ -13,6 +13,7 @@ class Rule
     public $foundMatches = [];
     public $text = '';
     public $dateFilter = false;
+    private $priority = 0;
 
     public function __construct($name)
     {
@@ -86,6 +87,14 @@ class Rule
     public function getText()
     {
         return $this->text;
+    }
+    public function getPriority()
+    {
+        return $this->priority;
+    }
+    public function setPriority($priority)
+    {
+        $this->priority = $priority;
     }
 }
 

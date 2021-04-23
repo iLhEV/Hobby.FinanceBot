@@ -104,7 +104,6 @@ class Spending
         if ($where_sql && $date_to) $where_sql .= " AND ";
         if ($date_to) $where_sql .= "created_at <= '" . $date_to . "'";
         if ($where_sql) $where_sql = " WHERE " . $where_sql;
-        print_r($where_sql);
         return DB::query("SELECT * FROM `spendings` " . $where_sql);
     }
 }

@@ -21,18 +21,18 @@ class DateFilter
         $dateFrom = "";
         $flag = false;
         if (!$flag && $this->setProcessedTextAndPeriod("сегодня")) {
-            $dateFrom = date('Y-m-d');
+            $dateFrom = date('Y-m-d 00:00:00');
             $flag = true;
         }
         if (!$flag && $this->setProcessedTextAndPeriod("неделя")) {
             $date = new DateTime();
             $date->sub(new DateInterval('P1W'));
-            $dateFrom = $date->format('Y-m-d');
+            $dateFrom = $date->format('Y-m-d 00:00:00');
             $flag = true;
         }
         if (!$flag && $this->setProcessedTextAndPeriod("две недели")) {
             $date = new DateTime(); $date->sub(new DateInterval('P2W'));
-            $dateFrom = $date->format('Y-m-d');
+            $dateFrom = $date->format('Y-m-d 00:00:00');
             $flag = true;
         }
         // if (RegExp::search("две недели", $this->inputText)) {
@@ -57,11 +57,9 @@ class DateFilter
     }
     private function setProcessedTextAndPeriod($phrase)
     {
-        p($phrase);
         $text = $this->inputText;
         $count = 0;
         $this->processedText = RegExp::replace("(.*)($phrase)(.*)", "$1$3", $text, $count);
-        p($count);
         return boolval($count);
     }
 }

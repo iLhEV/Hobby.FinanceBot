@@ -13,26 +13,39 @@ class BalanceController
 {
     public function get($rule)
     {
-        //p($rule->dateFilter->getPeriod());
-        $query = Account::getAll();
-        $vals = [];
-        foreach($query as $account) {
-            $query1 = BalanceValues::getByAccountId($account['id']);
-            if ($query1->rowCount()) {
-                $val = $query1->fetch();
-                $vals[$account['name']] = [$val['val'], date("d.m H:m", strtotime($val['created_at']))];
+        $accounts = Account::getAll();
+        $balanceCollection = [];
+        //Iterate over accounts
+        foreach($accounts as $account) {
+            $collectionValueModel = BalanceValues::getByAccountId($account['id']);
+            if ($collectionValueModel->rowCount()) {
+                $collectionValue = $collectionValueModel->fetch();
+                $balanceCollection[$account['name']] = [
+                    'value' => $collectionValue['val'],
+                    'time' => date("Y-m-d H:i:s", strtotime($collectionValue['created_at'])),
+                ];
             } else {
-                $vals[$account['name']] = "-";
+                $balanceCollection[$account['name']] = "-";
             }
         }
         $sum = 0; $answer = "";
-        foreach ($vals as $account_name => $val) {
-            $answer .= $account_name . ": ";
-            if (is_array($val)) {
-                $answer .= $val[0] . " : " . $val[1];
-                $sum += $val[0];
+        foreach ($balanceCollection as $accountName => $collectionValue) {
+            //Фильтрую значения по датам
+            if ($period = $rule->dateFilter->getPeriod()) {
+                if ($period[0]) {
+                    if ($collectionValue['time'] < $period[0]) continue;
+                }
+                if ($period[1]) {
+                    if ($collectionValue['time'] > $period[1]) continue;
+                }
+            }
+            //Формирую строку
+            $answer .= $accountName . ": ";
+            if (is_array($collectionValue)) {
+                $answer .= $collectionValue['value'] . " : " . $collectionValue['time'];
+                $sum += $collectionValue['value'];
             } else {
-                $answer .= $val;
+                $answer .= $collectionValue;
             }
             $answer .= PHP_EOL;
         }
