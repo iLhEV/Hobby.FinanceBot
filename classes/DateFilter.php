@@ -4,6 +4,7 @@ namespace Classes;
 
 use \DateInterval;
 use \DateTime;
+use Facades\Tlgr;
 
 class DateFilter
 {
@@ -31,7 +32,8 @@ class DateFilter
             $flag = true;
         }
         if (!$flag && $this->setProcessedTextAndPeriod("две недели")) {
-            $date = new DateTime(); $date->sub(new DateInterval('P2W'));
+            $date = new DateTime();
+            $date->sub(new DateInterval('P2W'));
             $dateFrom = $date->format('Y-m-d 00:00:00');
             $flag = true;
         }
@@ -57,9 +59,10 @@ class DateFilter
     }
     private function setProcessedTextAndPeriod($phrase)
     {
+        // Tlgr::sendMessage("input text" . PHP_EOL . $this->inputText . PHP_EOL . $phrase);
         $text = $this->inputText;
         $count = 0;
-        $this->processedText = RegExp::replace("(.*)($phrase)(.*)", "$1$3", $text, $count);
+        $this->processedText = trim(RegExp::replace("(.*)($phrase)(.*)", "$1$3", $text, $count));
         return boolval($count);
     }
 }

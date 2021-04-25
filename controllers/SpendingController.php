@@ -18,16 +18,21 @@ class SpendingController
     }
 
     public function get($rule) {
-        if (!$period = $rule->dateFilter->getPeriod()) $period = [false, false];
+        if (!$period = $rule->dateFilter->getPeriod()) {
+            $period = [false, false];
+        }
         $answer = "";
         $sum = 0;
         $query = Spending::getByDates($period[0], $period[1]);
+        Tlgr::sendMessage("количество записей " . $query->rowCount());
         foreach($query as $item) {
-            $answer .= "#" . $item['id'] . " " . date("d.m H:m", strtotime($item['created_at'])) . PHP_EOL;
-            $answer .= $item['name'] . PHP_EOL;
-            $answer .= $item['val'] . PHP_EOL;
+            $str = "";
+            $str .= "#" . $item['id'] . " " . date("d.m H:m", strtotime($item['created_at'])) . PHP_EOL;
+            $str .= $item['name'] . PHP_EOL;
+            $str .= $item['val'] . PHP_EOL;
             $sum += $item['val'];
-            $answer .= PHP_EOL;
+            $str .= PHP_EOL;
+            $answer .= $str;
         }
         $answer .= "Общая сумма: " . $sum;
         Tlgr::sendMessage($answer);

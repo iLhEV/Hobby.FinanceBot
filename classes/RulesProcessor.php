@@ -4,6 +4,7 @@ namespace Classes;
 
 use Facades\Tlgr;
 use Classes\Store;
+use Classes\Rule;
 
 class RulesProcessor
 {
@@ -16,7 +17,7 @@ class RulesProcessor
         $this->text = $text;
         return true;
     }
-    public function addRule(Object $rule)
+    public function addRule(Rule $rule)
     {
         $this->rules[] = $rule;
     }
