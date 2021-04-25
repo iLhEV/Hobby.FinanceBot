@@ -4,9 +4,13 @@ namespace Classes;
 
 class TlgrClient
 {
-    public $api = "https://api.telegram.org/bot1722248171:AAGJPqhLEsHn_oYx9ldGbaYR68vu7NmVrG8/sendMessage?chat_id=1349171752&";
+    public $api;
     private $maxTextLength = 4000;
 
+    public function __construct()
+    {
+        $this->api = "https://api.telegram.org/bot" . $GLOBALS['env']['bot_key'] . "/sendMessage?chat_id=1349171752&";
+    }
     public function sendMessage($text)
     {
         if ($GLOBALS['http_answer']) {

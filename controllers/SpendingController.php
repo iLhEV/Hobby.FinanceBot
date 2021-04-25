@@ -24,7 +24,6 @@ class SpendingController
         $answer = "";
         $sum = 0;
         $query = Spending::getByDates($period[0], $period[1]);
-        Tlgr::sendMessage("количество записей " . $query->rowCount());
         foreach($query as $item) {
             $str = "";
             $str .= "#" . $item['id'] . " " . date("d.m H:m", strtotime($item['created_at'])) . PHP_EOL;

@@ -7,7 +7,7 @@ use Rules\Rules;
 
 include "./autoloader.php";
 include "./func/global_func.php";
-include "./config/db.php";
+include "./config/config.php";
 include "./classes/Error.php";
 //include "./models/spending.php";
 
