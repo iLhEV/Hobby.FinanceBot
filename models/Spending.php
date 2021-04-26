@@ -3,6 +3,8 @@
 namespace Models;
 
 use Facades\DB;
+use \DateInterval;
+use \DateTime;
 
 class Spending
 {
@@ -105,5 +107,32 @@ class Spending
         if ($date_to) $where_sql .= "created_at <= '" . $date_to . "'";
         if ($where_sql) $where_sql = " WHERE " . $where_sql;
         return DB::query("SELECT * FROM `spendings` " . $where_sql);
+    }
+
+    public function week()
+    {
+        $date = new DateTime();
+        $date->sub(new DateInterval('P1W'));
+        $dateFrom = $date->format('Y-m-d 00:00:00');
+        $spendings = DB::query("SELECT * FROM `spendings` WHERE `created_at` > '$dateFrom'");
+        $dates = [];
+        foreach ($spendings as $spending) {
+            $date = date_parse($spending['created_at']);
+            $key = $date['year'] . "-" . $this->addZero($date['month']) . "-" . $this->addZero($date['day']);
+            if (!isset($dates[$key])) {
+                $dates[$key] = 0;
+            } else {
+                $dates[$key] += $spending['val'];
+            }
+        }
+        ksort($dates, SORT_NATURAL);
+        return $dates;
+    }
+
+    public function addZero($num)
+    {
+        $str = strval($num);
+        if (strlen($str) === 1) $str = "0" . $str;
+        return $str;
     }
 }

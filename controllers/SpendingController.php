@@ -84,4 +84,62 @@ class SpendingController
     {
         return number_format($val, 0, '', ' ');
     }
+    //Траты недели
+    public function week()
+    {
+        $results = Spending::week();
+        $supersum = 0;
+        foreach ($results as $date => $sum) {
+            $temestamp = strtotime($date);
+            $dayOfWeekEng = date("l", $temestamp);
+            //Копейки не в счёт
+            $sum = $this->removeKopeiki($sum);
+            //Вывод и коплю
+            $this->showDaySpending($this->dayOfWeekToRussian($dayOfWeekEng, true), $this->formatSum(intval($sum)));
+            $supersum += $sum;
+        }
+        p();
+        $this->showDaySpending("Итог:", $this->formatSum($supersum));
+    }
+    //Преобразовние в русские дни недели
+    public function dayOfWeekToRussian($dayOfWeekEng, $short = false)
+    {
+        $daysOfWeekTransformerLong = [
+            'Sunday' => 'Воскресенье',
+            'Monday' => 'Понедельник',
+            'Tuesday' => 'Вторник',
+            'Wednesday' => 'Среда',
+            'Thursday' => 'Четверг',
+            'Friday' => 'Пятница',
+            'Saturday' => 'Суббота'
+        ];
+        $daysOfWeekTransformerShort = [
+            'Sunday' => 'Вс',
+            'Monday' => 'Пн',
+            'Tuesday' => 'Вт',
+            'Wednesday' => 'Ср',
+            'Thursday' => 'Чт',
+            'Friday' => 'Пт',
+            'Saturday' => 'Сб'
+        ];
+        $short ? $daysOfWeekTransformer = $daysOfWeekTransformerShort : $daysOfWeekTransformer = $daysOfWeekTransformerLong;
+        if (isset($daysOfWeekTransformer[$dayOfWeekEng])) {
+            return $daysOfWeekTransformer[$dayOfWeekEng];
+        } else {
+            return $dayOfWeekEng;
+        }
+    }
+    private function showDaySpending($day, $sum) {
+        p($day . " " . $sum . 'р');
+    }
+    private function removeKopeiki($sum)
+    {
+        $sum_exploded = explode(".", $sum);
+        if(count($sum_exploded) > 1) $sum = $sum_exploded[0];
+        return $sum;
+    }
+    private function formatSum($sum)
+    {
+        return number_format($sum, 0, '.', ',');
+    }
 }

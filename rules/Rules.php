@@ -59,6 +59,11 @@ class Rules
         $rule->addResolution('SpendingController', 'get');
         $rule->activateDateFilter();
         $this->rulesProcessor->addRule($rule);        
+
+        $rule = new Rule('траты недели');
+        $rule->addExactMatches(['траты_недели']);
+        $rule->addResolution('SpendingController', 'week');
+        $this->rulesProcessor->addRule($rule);
     }
     public function process($text)
     {
