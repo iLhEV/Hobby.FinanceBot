@@ -22,6 +22,11 @@ class Rules
         $rule->activateDateFilter();                
         $this->rulesProcessor->addRule($rule);
 
+        $rule = new Rule('траты месяца');
+        $rule->addExactMatches(['траты_месяца', 'трм']);
+        $rule->addResolution('SpendingController', 'month');
+        $this->rulesProcessor->addRule($rule);
+
         $rule = new Rule('установка значения баланса');
         $rule->addPatternMatch('б|бал|баланс {word} {amount}');
         $rule->addResolution('BalanceController', 'setVal');
@@ -59,11 +64,6 @@ class Rules
         $rule->addResolution('SpendingController', 'get');
         $rule->activateDateFilter();
         $this->rulesProcessor->addRule($rule);        
-
-        $rule = new Rule('траты недели');
-        $rule->addExactMatches(['траты_недели']);
-        $rule->addResolution('SpendingController', 'week');
-        $this->rulesProcessor->addRule($rule);
     }
     public function process($text)
     {

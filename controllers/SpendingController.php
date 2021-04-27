@@ -5,8 +5,11 @@ namespace Controllers;
 use Facades\Spending;
 use Facades\Tlgr;
 use Classes\DateFilter;
+use Classes\DateTransform;
 class SpendingController
 {
+    private $answerText = "";
+
     public function add($rule)
     {
         if (Spending::add($rule->foundMatches[0], $rule->foundMatches[1])) {
@@ -85,21 +88,56 @@ class SpendingController
         return number_format($val, 0, '', ' ');
     }
     //Траты недели
-    public function week()
+    public function month()
     {
-        $results = Spending::week();
+        $this->collectAnswer('Сегодня: ');
+        $this->collectAnswer(lcfirst(DateTransform::fetchMonthName(date("d.m.Y"))) . ", " . date('d'));
+        $this->addEmptyStringToAnswer(2);
+        $this->collectAnswer('Вот траты за этот и предыдущий месяцы:');
+        $this->addEmptyStringToAnswer(2);
+        $results = Spending::month();
         $supersum = 0;
+        $i = 0;
+        $previousMonthName = '';
+        $weekSum = 0;
+        $newMonthFlag = true;
+        $weekNum = 0;
         foreach ($results as $date => $sum) {
+            $monthName = DateTransform::fetchMonthName($date);
             $temestamp = strtotime($date);
             $dayOfWeekEng = date("l", $temestamp);
             //Копейки не в счёт
             $sum = $this->removeKopeiki($sum);
-            //Вывод и коплю
-            $this->showDaySpending($this->dayOfWeekToRussian($dayOfWeekEng, true), $this->formatSum(intval($sum)));
+            //Перед понедельником вывожу дату
+            if ($dayOfWeekEng === "Monday") {
+                $this->collectAnswer("Итог: " . $weekSum);
+                $this->addEmptyStringToAnswer();
+                if ($newMonthFlag) {
+                    $weekNum = 1;
+                    $this->addEmptyStringToAnswer();
+                    $this->collectAnswer("======== " . mb_strtoupper(DateTransform::fetchMonthName($date)) . " ========");
+                    $newMonthFlag = false;
+                    $previousMonthName = $monthName;
+                } else {
+                    $weekNum++;
+                    if ($previousMonthName !== $monthName) {
+                        $newMonthFlag = true;
+                    }
+                }
+                $this->addEmptyStringToAnswer();
+                $this->collectAnswer("::неделя " . $weekNum . "::");
+                $this->addEmptyStringToAnswer();
+                $weekSum = 0;
+            }
+            //Вывод и коплю итог
+            $this->collectAnswer($this->showDaySpending($this->dayOfWeekToRussian($dayOfWeekEng, true), $this->formatSum(intval($sum))));
             $supersum += $sum;
+            $weekSum += $sum;
+            $i++;            
         }
-        p();
-        $this->showDaySpending("Итог:", $this->formatSum($supersum));
+        $this->collectAnswer(PHP_EOL);
+        $this->collectAnswer($this->showDaySpending("Итог:", $this->formatSum($supersum)));
+        $this->returnAnswer();
     }
     //Преобразовние в русские дни недели
     public function dayOfWeekToRussian($dayOfWeekEng, $short = false)
@@ -130,7 +168,12 @@ class SpendingController
         }
     }
     private function showDaySpending($day, $sum) {
-        p($day . " " . $sum . 'р');
+        if ($sum == 0) {
+            $sum = "-";
+        } else {
+            $sum = $sum . "р";
+        }
+        return $day . " " . $sum . PHP_EOL;
     }
     private function removeKopeiki($sum)
     {
@@ -141,5 +184,19 @@ class SpendingController
     private function formatSum($sum)
     {
         return number_format($sum, 0, '.', ',');
+    }
+    private function collectAnswer($text)
+    {
+        $this->answerText .= $text;
+    }
+    private function addEmptyStringToAnswer($num = 1)
+    {
+        for ($i=1;$i<=$num;$i++) {
+            $this->answerText .= PHP_EOL;
+        }
+    }
+    private function returnAnswer()
+    {
+        Tlgr::sendMessage($this->answerText);
     }
 }

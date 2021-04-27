@@ -1,5 +1,7 @@
 <?php
 
+use Facades\Tlgr;
+
 function p($value = "")
 {
     if (is_array($value)) {
@@ -9,8 +11,12 @@ function p($value = "")
         }
         return;
     }
-    print_r($value);
-    echo PHP_EOL;
+    if ($GLOBALS['http_answer']) {
+        print_r($value);
+        echo PHP_EOL;
+    } else {
+        Tlgr::sendMessage($value . PHP_EOL);
+    }
 }
 
 function mb_ucfirst($string, $encoding)

@@ -24,7 +24,9 @@ class RulesProcessor
     public function run()
     {
         foreach ($this->rules as $rule) {
-            if ($rule->resolve($this->text)) $this->resolvedRules[] = $rule;
+            if ($rule->resolve($this->text)) {
+                $this->resolvedRules[] = $rule;
+            }
         }
         $count = count($this->resolvedRules);
         if ($count === 0) {

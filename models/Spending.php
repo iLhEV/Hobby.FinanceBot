@@ -5,6 +5,8 @@ namespace Models;
 use Facades\DB;
 use \DateInterval;
 use \DateTime;
+use \DatePeriod;
+use Classes\DateTransform;
 
 class Spending
 {
@@ -109,30 +111,41 @@ class Spending
         return DB::query("SELECT * FROM `spendings` " . $where_sql);
     }
 
-    public function week()
+    public function month()
     {
-        $date = new DateTime();
-        $date->sub(new DateInterval('P1W'));
-        $dateFrom = $date->format('Y-m-d 00:00:00');
+        $begin = DateTransform::getFirstDayOfPreviousMonth([date('m'), date('Y')]);
+        $dateFrom = "{$begin[0]}.{$begin[1]}.{$begin[2]}";
         $spendings = DB::query("SELECT * FROM `spendings` WHERE `created_at` > '$dateFrom'");
         $dates = [];
+        //Прохожу по тратам
         foreach ($spendings as $spending) {
             $date = date_parse($spending['created_at']);
-            $key = $date['year'] . "-" . $this->addZero($date['month']) . "-" . $this->addZero($date['day']);
+            $key = $date['year'] . "-" . DateTransform::addZero($date['month']) . "-" . DateTransform::addZero($date['day']);
             if (!isset($dates[$key])) {
                 $dates[$key] = 0;
             } else {
                 $dates[$key] += $spending['val'];
             }
         }
+        //Формирую набор и если в этот день не было трат, то ставлю сумму ноль
+        $interval = new DateInterval('P1D');
+        
+        $daterange = new DatePeriod(
+            new DateTime($dateFrom),
+            $interval,
+            new DateTime(date('d.m.Y'))
+        );
+        foreach($daterange as $date) {
+            // $dateTemp = new DateTime();
+            // $dateTemp->sub(new DateInterval('P' . $i . 'D'));
+            // $dateTemp = $dateTemp->format('Y-m-d');
+            $dateFormatted = $date->format('Y-m-d');
+            if (!isset($dates[$dateFormatted])) {
+                $dates[$dateFormatted] = 0;
+            } 
+        }
         ksort($dates, SORT_NATURAL);
         return $dates;
     }
 
-    public function addZero($num)
-    {
-        $str = strval($num);
-        if (strlen($str) === 1) $str = "0" . $str;
-        return $str;
-    }
 }

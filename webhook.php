@@ -22,7 +22,7 @@ class Webhook
 { 
     public function __construct()
     {
-        Store::setInstance('bot', new Bot());
+        //Store::setInstance('bot', new Bot());
     }
 
     public function start()
@@ -32,9 +32,12 @@ class Webhook
         $input = file_get_contents('php://input');
         $json = json_decode($input);
         $text = mb_strtolower(trim($json->message->text));
-        $json->message->http_answer ? $GLOBALS['http_answer'] = true : $GLOBALS['http_answer'] = false;
+        if (property_exists($json->message, 'http_answer') && $json->message->http_answer) {
+            $GLOBALS['http_answer'] = true;
+        } else {
+            $GLOBALS['http_answer'] = false;
+        }
         $found = [];
-
         $rules = new Rules();
         $rules->create();
         $rules->process($text);
