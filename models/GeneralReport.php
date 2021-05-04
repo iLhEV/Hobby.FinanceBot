@@ -3,7 +3,7 @@
 namespace Models;
 
 use Classes\DateTransform;
-use Classes\Timeline;
+use Classes\TimelineIterator;
 use Facades\DB;
 use \DateInterval;
 use \DateTime;
@@ -23,12 +23,15 @@ class GeneralReport
 
     public function create()
     {
-        $timeline = new Timeline(['2021-02-12', '2021-03-01']);
-        while(!$timeline->iteratorWasStopped()) {
-            $timeline = $timeline->next();
-            p($timeline->getIterator());
+        $iterator = new TimelineIterator(['2021-02-12', '2021-02-13']);
+        while(!$iterator->nextIsLast()) {
+            p("---");                        
+            p($iterator->getPrev());
+            p($iterator->getCurrent());
+            p($iterator->getNext());
+            p("---");            
+            $iterator = $iterator->next();
         }
-
         return;
         $this->sumsByDays = $this->getSumsByDays();
         $this->getSumsByWeeks();
