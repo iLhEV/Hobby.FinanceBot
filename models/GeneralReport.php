@@ -24,6 +24,10 @@ class GeneralReport
     public function create()
     {
         $timeline = new Timeline(['2021-02-12', '2021-03-01']);
+        while(!$timeline->iteratorWasStopped()) {
+            $timeline = $timeline->next();
+            p($timeline->getIterator());
+        }
 
         return;
         $this->sumsByDays = $this->getSumsByDays();
