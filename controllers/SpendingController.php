@@ -6,6 +6,8 @@ use Facades\Spending;
 use Facades\Tlgr;
 use Classes\DateFilter;
 use Classes\DateTransform;
+use Models\GeneralReport;
+
 class SpendingController
 {
     private $answerText = "";
@@ -90,6 +92,9 @@ class SpendingController
     //Траты недели
     public function month()
     {
+        $monthReport = new GeneralReport();
+        $monthReport->create();
+        return;
         $this->collectAnswer('Сегодня: ');
         $this->collectAnswer(lcfirst(DateTransform::fetchMonthName(date("d.m.Y"))) . ", " . date('d'));
         $this->addEmptyStringToAnswer(2);
@@ -139,7 +144,7 @@ class SpendingController
         $this->collectAnswer($this->showDaySpending("Итог:", $this->formatSum($supersum)));
         $this->returnAnswer();
     }
-    //Преобразовние в русские дни недели
+    //Преобразование в русские дни недели
     public function dayOfWeekToRussian($dayOfWeekEng, $short = false)
     {
         $daysOfWeekTransformerLong = [

@@ -2,6 +2,8 @@
 
 namespace Classes;
 
+use \DateTime;
+
 class DateTransform
 {
     public static function addZero($num)
@@ -37,6 +39,18 @@ class DateTransform
         }
     }
 
+    //Извлекает номер месяца из даты
+    public static function fetchMonthNumber($date)
+    {
+        if ($separator = self::findSeparator($date)) {
+            $exploded = explode($separator, $date);
+            $monthNum = $exploded[1];
+            return intval($monthNum);
+        } else {
+            return false;
+        }
+    }
+
     //Добывает имя месяца из даты
     public static function fetchMonthName($date)
     {
@@ -48,6 +62,18 @@ class DateTransform
             return false;
         }
     }
+
+    //Извлекает год из даты
+    public static function fetchYear($date) {
+        if ($separator = self::findSeparator($date)) {
+            $exploded = explode($separator, $date);
+            $year = $exploded[0];
+            return $year;
+        } else {
+            return false;
+        }
+    }
+
     //Добывает число и имя месяца строковое из даты
     public static function fetchDayAndMonthName($date)
     {
@@ -60,7 +86,8 @@ class DateTransform
             return false;
         }
     }
-    //Извлекает номер дня
+
+    //Извлекает число из даты в формате d.m.Y
     public static function fetchDay($date)
     {
         if ($separator = self::findSeparator($date)) {
@@ -71,6 +98,8 @@ class DateTransform
             return false;
         }
     }
+
+    //Возвращает русское название месяца по его номеру
     public static function getMonthNameByNum($numStr)
     {
         $num = intval($numStr);
@@ -110,5 +139,12 @@ class DateTransform
     {
         $res = self::getPreviousMonth($input);
         return [1, $res[0], $res[1]];
+    }
+
+    //Получить номер недели в рамках года по дате
+    public static function getWeekNumberOfYearByDay($day)
+    {
+        $date = new DateTime($day);
+        return $date->format("W");
     }
 }
