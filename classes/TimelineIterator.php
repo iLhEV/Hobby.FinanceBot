@@ -12,7 +12,7 @@ class TimelineIterator
 
     public function __construct($limitDates)
     {
-        if ($limitDates[0] <= $limitDates[1]) {
+        if ($limitDates[0] >= $limitDates[1]) {
             p("error maxDate should be greater than minDate");
         }
         $this->limitDates = $limitDates;
@@ -44,19 +44,34 @@ class TimelineIterator
         return date('Y-m-d', strtotime($date .' +1 day'));
     }
 
-    public function getCurrent()
+    public function getCurrent($resultType = "")
     {
-        return $this->iterator;
+        return $this->getResultByType($this->iterator, $resultType);
     }
 
-    public function getPrev()
+    public function getPrev($resultType = "")
     {
-        return $this->prev;
+        return $this->getResultByType($this->prev, $resultType);
     }
 
-    public function getNext()
+    public function getNext($resultType = "")
     {
-        return $this->next;
+        return $this->getResultByType($this->next, $resultType);
+    }
+
+    private function getResultByType($resultDate, $resultType)
+    {
+        switch ($resultType):
+            case "month":
+                return DateCalc::getMonth($resultDate);
+                break;
+            case "month_ru":
+                return DateCalc::getMonthName(DateCalc::getMonth($resultDate));
+                break;
+            default:
+                return $resultDate;
+                break;
+        endswitch;
     }
 
     public function last()
@@ -72,5 +87,10 @@ class TimelineIterator
     public function wasStarted()
     {
         return $this->iterator !== $this->limitDates[0];
+    }
+
+    public function getNum()
+    {
+        return $this->num;
     }
 }

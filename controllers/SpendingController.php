@@ -5,7 +5,7 @@ namespace Controllers;
 use Facades\Spending;
 use Facades\Tlgr;
 use Classes\DateFilter;
-use Classes\DateTransform;
+use Classes\DateCalc;
 use Models\GeneralReport;
 
 class SpendingController
@@ -96,7 +96,7 @@ class SpendingController
         $monthReport->create();
         return;
         $this->collectAnswer('Сегодня: ');
-        $this->collectAnswer(lcfirst(DateTransform::fetchMonthName(date("d.m.Y"))) . ", " . date('d'));
+        $this->collectAnswer(lcfirst(DateCalc::fetchMonthName(date("d.m.Y"))) . ", " . date('d'));
         $this->addEmptyStringToAnswer(2);
         $this->collectAnswer('Вот траты за этот и предыдущий месяцы:');
         $this->addEmptyStringToAnswer(2);
@@ -108,7 +108,7 @@ class SpendingController
         $newMonthFlag = true;
         $weekNum = 0;
         foreach ($results as $date => $sum) {
-            $monthName = DateTransform::fetchMonthName($date);
+            $monthName = DateCalc::fetchMonthName($date);
             $temestamp = strtotime($date);
             $dayOfWeekEng = date("l", $temestamp);
             //Копейки не в счёт
@@ -120,7 +120,7 @@ class SpendingController
                 if ($newMonthFlag) {
                     $weekNum = 1;
                     $this->addEmptyStringToAnswer();
-                    $this->collectAnswer("======== " . mb_strtoupper(DateTransform::fetchMonthName($date)) . " ========");
+                    $this->collectAnswer("======== " . mb_strtoupper(DateCalc::fetchMonthName($date)) . " ========");
                     $newMonthFlag = false;
                     $previousMonthName = $monthName;
                 } else {

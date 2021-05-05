@@ -6,7 +6,7 @@ use Facades\DB;
 use \DateInterval;
 use \DateTime;
 use \DatePeriod;
-use Classes\DateTransform;
+use Classes\DateCalc;
 
 class Spending
 {
@@ -113,14 +113,14 @@ class Spending
 
     public function month()
     {
-        $begin = DateTransform::getFirstDayOfPreviousMonth([date('m'), date('Y')]);
+        $begin = DateCalc::getFirstDayOfPreviousMonth([date('m'), date('Y')]);
         $dateFrom = "{$begin[0]}.{$begin[1]}.{$begin[2]}";
         $spendings = DB::query("SELECT * FROM `spendings` WHERE `created_at` > '$dateFrom'");
         $dates = [];
         //Прохожу по тратам
         foreach ($spendings as $spending) {
             $date = date_parse($spending['created_at']);
-            $key = $date['year'] . "-" . DateTransform::addZero($date['month']) . "-" . DateTransform::addZero($date['day']);
+            $key = $date['year'] . "-" . DateCalc::addZero($date['month']) . "-" . DateCalc::addZero($date['day']);
             if (!isset($dates[$key])) {
                 $dates[$key] = 0;
             } else {

@@ -2,7 +2,7 @@
 
 namespace Models;
 
-use Classes\DateTransform;
+use Classes\DateCalc;
 use Classes\TimelineIterator;
 use Facades\DB;
 use \DateInterval;
@@ -23,13 +23,17 @@ class GeneralReport
 
     public function create()
     {
-        $iterator = new TimelineIterator(['2021-02-12', '2021-02-13']);
+        $minDate = '2021-02-27';
+        $maxDate = '2021-04-03';
+        $iterator = new TimelineIterator([$minDate, $maxDate]);
         while(!$iterator->nextIsLast()) {
-            p("---");                        
-            p($iterator->getPrev());
+            //p("---");                        
+            if ($iterator->getNum() === 1) p($iterator->getCurrent('month_ru'));
             p($iterator->getCurrent());
-            p($iterator->getNext());
-            p("---");            
+            if ($iterator->getNext() && $iterator->getCurrent('month') !== $iterator->getNext('month')) {
+                p($iterator->getNext('month_ru'));
+            }
+            //p("---");            
             $iterator = $iterator->next();
         }
         return;
@@ -56,7 +60,7 @@ class GeneralReport
     public function getSumsByDays()
     {
         //Получаю из базы все траты после заданной даты
-        $begin = DateTransform::getFirstDayOfPreviousMonth([date('m'), date('Y')]);
+        $begin = DateCalc::getFirstDayOfPreviousMonth([date('m'), date('Y')]);
         $dateFrom = "{$begin[0]}.{$begin[1]}.{$begin[2]}";
         $spendings = DB::query("SELECT * FROM `spendings` WHERE `created_at` > '$dateFrom'");
 
@@ -64,7 +68,7 @@ class GeneralReport
         $dates = [];
         foreach ($spendings as $spending) {
             $date = date_parse($spending['created_at']);
-            $key = $date['year'] . "-" . DateTransform::addZero($date['month']) . "-" . DateTransform::addZero($date['day']);
+            $key = $date['year'] . "-" . DateCalc::addZero($date['month']) . "-" . DateCalc::addZero($date['day']);
             if (!isset($dates[$key])) {
                 $dates[$key] = 0;
             } else {
@@ -101,12 +105,12 @@ class GeneralReport
     {
         $weeks = [];
         foreach ($this->sumsByDays as $day => $sum) {
-            $weekNum = DateTransform::getWeekNumberOfYearByDay($day);
+            $weekNum = DateCalc::getWeekNumberOfYearByDay($day);
             if (!isset($weeks[$weekNum])) {
                 $weekTmp = &$weeks[$weekNum];
                 $weekTmp = new WeekSpendings();
-                $weekTmp->setYear(DateTransform::fetchYear($day));
-                $weekTmp->setMonth(DateTransform::fetchMonthNumber($day));
+                $weekTmp->setYear(DateCalc::fetchYear($day));
+                $weekTmp->setMonth(DateCalc::fetchMonthNumber($day));
                 $weekTmp->setNumber($weekNum);
                 //Теперь добавляю запись в общий список лет, месяцев, недель
                 if (!isset($this->list[$weekTmp->getYear()])) {
@@ -131,7 +135,7 @@ class GeneralReport
         return;
         foreach($weeks as $week) {
             p($week->getNumber());
-            p(DateTransform::getMonthNameByNum($week->getMonth()));
+            p(DateCalc::getMonthName($week->getMonth()));
         }
     }
 }
