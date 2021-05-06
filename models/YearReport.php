@@ -9,80 +9,91 @@ use \DateInterval;
 use \DateTime;
 use \DatePeriod;
 
-class GeneralReport
+class YearReport
 {
     private $list = [];
-    private $startDate = "";
-    private $stopDate = "";
+    private $minDate = "";
+    private $maxDate = "";
     private $resultText = "";
     private $sumsByDays = [];
 
-    public function __construct()
+    public function __construct($minDate, $maxDate)
     {
+        $this->setMinDate($minDate);
+        $this->setMaxDate($maxDate);
     }
 
     public function create()
     {
-        $minDate = '2021-02-27';
-        $maxDate = DateCalc::getToday();
-        $iterator = new TimelineIterator([$minDate, $maxDate]);
+        $iterator = new TimelineIterator([$this->minDate, $this->maxDate]);
+        $collector = new YearExpensesCollector();
         while(!$iterator->nextIsLast()) {
             //p("---");                        
             if ($iterator->getNum() === 1) {
-                self::printWeekName($iterator->getNext('week'));
+                $this->printWeekNumber($iterator->getNext('week'));
             }
             if (    ($iterator->getPrev()
                     && $iterator->getCurrent('month') !== $iterator->getPrev('month'))
                     || $iterator->getNum() === 1
                 ) {
-                self::printDayNameWithMonthLabel($iterator->getCurrent(), $iterator->getCurrent('month_ru'));
+                $this->printDayNameWithMonthLabel($iterator->getCurrent(), $iterator->getCurrent('month_ru'));
             } else {
-                self::printDayName($iterator->getCurrent());
+                $this->printDayName($iterator->getCurrent());
             }
             if ($iterator->getNext()) {
                 if ($iterator->getCurrent('month') !== $iterator->getNext('month')) {
                     //p($iterator->getNext('month_ru'));
                 }
                 if ($iterator->getCurrent('week') !== $iterator->getNext('week')) {
-                    self::printWeekName($iterator->getNext('week'));
+                    $this->printWeekNumber($iterator->getNext('week'));
                 }
             }
             //p("---");            
             $iterator = $iterator->next();
         }
+        $this->printResult();
         return;
         $this->sumsByDays = $this->getSumsByDays();
         $this->getSumsByWeeks();
+
     }
 
-    private static function printWeekName($name)
+    //Print-функции в этом классе работают в режиме эмулятора.
+    //Хоть они и называются, начиная с 'print', однако они лишь добавляют вывод
+    //к результирующему тексту, но не делают вывод напрямую.
+    private function printWeekNumber($name)
     {
-        p("  " . $name);
+        $this->addToResult($name . PHP_EOL);
     }
 
-    private static function printDayName($name)
+    private function printDayName($name)
     {
-        p("    " . $name);
+        $this->addToResult("    " . $name . PHP_EOL);
     }
 
-    private static function printDayNameWithMonthLabel($day, $month)
+    private function printDayNameWithMonthLabel($day, $month)
     {
-        p("    " . $day . "   <-- " . $month);
+        $this->addToResult("    " . $day . "   <-- " . $month . PHP_EOL);
     }
 
-    public function setStartDate($date)
+    public function setMinDate($date)
     {
-        $this->startDate = $date;
+        $this->minDate = $date;
     }
 
-    public function setStopDate($date)
+    public function setMaxDate($date)
     {
-        $this->stopDate = $date;
+        $this->maxDate = $date;
     }
 
-    public function addToResultText($text)
+    public function addToResult($text)
     {
         $this->resultText .= $text;
+    }
+
+    public function printResult()
+    {
+        p($this->resultText);
     }
 
     //Подготавливает массив: в ключе дата в формате Y-m-d, в значении сумма трат за этот день

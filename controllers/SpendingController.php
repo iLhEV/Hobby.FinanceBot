@@ -6,7 +6,7 @@ use Facades\Spending;
 use Facades\Tlgr;
 use Classes\DateFilter;
 use Classes\DateCalc;
-use Models\GeneralReport;
+use Models\YearExpensesReport;
 
 class SpendingController
 {
@@ -92,8 +92,8 @@ class SpendingController
     //Траты недели
     public function month()
     {
-        $monthReport = new GeneralReport();
-        $monthReport->create();
+        $yearReport = new YearExpensesReport("2021-02-20", DateCalc::getToday());
+        $yearReport->create();
         return;
         $this->collectAnswer('Сегодня: ');
         $this->collectAnswer(lcfirst(DateCalc::fetchMonthName(date("d.m.Y"))) . ", " . date('d'));
