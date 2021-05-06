@@ -94,56 +94,6 @@ class ExpensesController
     {
         $yearExpensesReport = new YearExpensesReport("2021-02-20", DateCalc::getToday());
         $yearExpensesReport->create();
-        return;
-
-        $this->collectAnswer('Сегодня: ');
-        $this->collectAnswer(lcfirst(DateCalc::fetchMonthName(date("d.m.Y"))) . ", " . date('d'));
-        $this->addEmptyStringToAnswer(2);
-        $this->collectAnswer('Вот траты за этот и предыдущий месяцы:');
-        $this->addEmptyStringToAnswer(2);
-        $results = Expense::month();
-        $supersum = 0;
-        $i = 0;
-        $previousMonthName = '';
-        $weekSum = 0;
-        $newMonthFlag = true;
-        $weekNum = 0;
-        foreach ($results as $date => $sum) {
-            $monthName = DateCalc::fetchMonthName($date);
-            $temestamp = strtotime($date);
-            $dayOfWeekEng = date("l", $temestamp);
-            //Копейки не в счёт
-            $sum = $this->removeKopeiki($sum);
-            //Перед понедельником вывожу дату
-            if ($dayOfWeekEng === "Monday") {
-                $this->collectAnswer("Итог: " . $weekSum);
-                $this->addEmptyStringToAnswer();
-                if ($newMonthFlag) {
-                    $weekNum = 1;
-                    $this->addEmptyStringToAnswer();
-                    $this->collectAnswer("======== " . mb_strtoupper(DateCalc::fetchMonthName($date)) . " ========");
-                    $newMonthFlag = false;
-                    $previousMonthName = $monthName;
-                } else {
-                    $weekNum++;
-                    if ($previousMonthName !== $monthName) {
-                        $newMonthFlag = true;
-                    }
-                }
-                $this->addEmptyStringToAnswer();
-                $this->collectAnswer("::неделя " . $weekNum . "::");
-                $this->addEmptyStringToAnswer();
-                $weekSum = 0;
-            }
-            //Вывод и коплю итог
-            $this->collectAnswer($this->showDaySpending($this->dayOfWeekToRussian($dayOfWeekEng, true), $this->formatSum(intval($sum))));
-            $supersum += $sum;
-            $weekSum += $sum;
-            $i++;            
-        }
-        $this->collectAnswer(PHP_EOL);
-        $this->collectAnswer($this->showDaySpending("Итог:", $this->formatSum($supersum)));
-        $this->returnAnswer();
     }
     //Преобразование в русские дни недели
     public function dayOfWeekToRussian($dayOfWeekEng, $short = false)
