@@ -4,14 +4,19 @@ namespace Models;
 
 class YearExpensesReport
 {
-    public function __construct()
+    private $minDate = '';
+    private $maxDate = '';
+
+    public function __construct($minDate, $maxDate)
     {
-        
+        $this->minDate = $minDate;        
+        $this->maxDate = $maxDate;        
     }
 
     public function create()
     {
-        $report = new YearReport();
-        
+        $collector = new YearExpensesCollector();
+        $yearReport = new YearReport($this->minDate, $this->maxDate, $collector);
+        $yearReport->create();        
     }
 }

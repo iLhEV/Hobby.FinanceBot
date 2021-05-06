@@ -24,7 +24,7 @@ class Rules
 
         $rule = new Rule('траты месяца');
         $rule->addExactMatches(['траты_месяца', 'трм']);
-        $rule->addResolution('SpendingController', 'month');
+        $rule->addResolution('ExpensesController', 'timeline');
         $this->rulesProcessor->addRule($rule);
 
         $rule = new Rule('установка значения баланса');
@@ -55,13 +55,13 @@ class Rules
 
         $rule = new Rule('добавление траты');
         $rule->addPatternMatch('{string} {amount}');
-        $rule->addResolution('SpendingController', 'add');
+        $rule->addResolution('ExpensesController', 'add');
         $rule->setPriority(-100);        
         $this->rulesProcessor->addRule($rule);        
 
         $rule = new Rule('просмотр расходов');
         $rule->addPatternMatch('тр|траты|трат|расх|расходы');
-        $rule->addResolution('SpendingController', 'get');
+        $rule->addResolution('ExpensesController', 'get');
         $rule->activateDateFilter();
         $this->rulesProcessor->addRule($rule);        
     }

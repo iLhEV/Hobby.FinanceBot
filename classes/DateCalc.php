@@ -3,9 +3,11 @@
 namespace Classes;
 
 use \DateTime;
+use Traits\PeriodsTrait;
 
 class DateCalc
 {
+    use PeriodsTrait;
     public static function addZero($num)
     {
         $str = strval($num);
@@ -130,6 +132,7 @@ class DateCalc
         return intval(date("m", strtotime($date)));
     }
 
+
     //Получить номер предыдущего месяца
     public static function getPreviousMonth($month_num)
     {
@@ -157,4 +160,23 @@ class DateCalc
     {
         return date("Y-m-d");
     }
+
+    public static function getYearWeekNumber($year)
+    {
+        //Основываюсь на ISO-8601, согласно которому первая неделя года - та, на которую выпадает первый четверг года.
+        //Или что эквивалентно, та, которая содержит число 4 января.
+        $maxWeekNum = 0;
+        for ($day=21; $day <= 31; $day++) {
+            $weekNum = date('W', mktime(23, 59, 59, 12, $day, $year));
+            if ($weekNum > $maxWeekNum) $maxWeekNum = $weekNum;
+        }
+        return $maxWeekNum;
+    }
+
+    //То же, что и getYearWeekNumber, но для текущего года
+    public static function getCurrentYearWeekNumber() 
+    {
+        return self::getYearWeekNumber(date("Y"));
+    }
+
 }

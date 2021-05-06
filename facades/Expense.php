@@ -2,7 +2,7 @@
 
 namespace Facades;
 
-class Spending
+class Expense
 {
     private static $app;
 
@@ -26,6 +26,6 @@ class Spending
 
     public static function getFacadeAccessor()
     {
-        return 'Models\Spending';
+        return 'Models\Expense';
     }
 }

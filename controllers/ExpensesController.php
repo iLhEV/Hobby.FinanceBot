@@ -2,19 +2,19 @@
 
 namespace Controllers;
 
-use Facades\Spending;
+use Facades\Expense;
 use Facades\Tlgr;
 use Classes\DateFilter;
 use Classes\DateCalc;
 use Models\YearExpensesReport;
 
-class SpendingController
+class ExpensesController
 {
     private $answerText = "";
 
     public function add($rule)
     {
-        if (Spending::add($rule->foundMatches[0], $rule->foundMatches[1])) {
+        if (Expense::add($rule->foundMatches[0], $rule->foundMatches[1])) {
             Tlgr::sendMessage("Трата записана");
         } else {
             Tlgr::sendMessage("Ошибка записи траты в БД");
@@ -28,7 +28,7 @@ class SpendingController
         }
         $answer = "";
         $sum = 0;
-        $query = Spending::getByDates($period[0], $period[1]);
+        $query = Expense::getByDates($period[0], $period[1]);
         foreach($query as $item) {
             $str = "";
             $str .= "#" . $item['id'] . " " . date("d.m H:m", strtotime($item['created_at'])) . PHP_EOL;
@@ -59,7 +59,7 @@ class SpendingController
         }
 
         if ($cat_flag) {
-            $counters = Spending::getCategoriesCounters($date_from, $date_to);
+            $counters = Expense::getCategoriesCounters($date_from, $date_to);
             arsort($counters);
             $answer = ""; $sum_categories = 0;
             foreach ($counters as $category => $val) {
@@ -67,7 +67,7 @@ class SpendingController
                 $answer .= $category . ": " . $fval . PHP_EOL;
                 $sum_categories += $val;
             }
-            $sum = Spending::getSum($date_from, $date_to);
+            $sum = Expense::getSum($date_from, $date_to);
             $answer .= "не определена: " . ($sum - $sum_categories) . PHP_EOL;
             $answer .= "итого: " . $this->prepareNumber($sum) . PHP_EOL;
             Tlgr::sendMessage($answer);
@@ -75,7 +75,7 @@ class SpendingController
         }
 
         if ($text == 'категория не определена' || $text == 'не опр' || $text == 'неопр'  || $text == 'неоп') {
-            $spendings = Spending::getSpendingsWithoutCategory();
+            $spendings = Expense::getSpendingsWithoutCategory();
             $answer = "";
             foreach ($spendings as $spending) {
                 $answer .= $spending['name'] . PHP_EOL;
@@ -89,18 +89,19 @@ class SpendingController
     {
         return number_format($val, 0, '', ' ');
     }
-    //Траты недели
-    public function month()
+    //Траты по временной шкале
+    public function timeline()
     {
-        $yearReport = new YearExpensesReport("2021-02-20", DateCalc::getToday());
-        $yearReport->create();
+        $yearExpensesReport = new YearExpensesReport("2021-02-20", DateCalc::getToday());
+        $yearExpensesReport->create();
         return;
+
         $this->collectAnswer('Сегодня: ');
         $this->collectAnswer(lcfirst(DateCalc::fetchMonthName(date("d.m.Y"))) . ", " . date('d'));
         $this->addEmptyStringToAnswer(2);
         $this->collectAnswer('Вот траты за этот и предыдущий месяцы:');
         $this->addEmptyStringToAnswer(2);
-        $results = Spending::month();
+        $results = Expense::month();
         $supersum = 0;
         $i = 0;
         $previousMonthName = '';

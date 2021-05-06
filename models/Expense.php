@@ -2,13 +2,13 @@
 
 namespace Models;
 
-use Facades\DB;
+use Facades\DB as PDOW;
 use \DateInterval;
 use \DateTime;
 use \DatePeriod;
 use Classes\DateCalc;
 
-class Spending
+class Expense
 {
     //Search words to define category
     public static $categories = [
@@ -39,8 +39,8 @@ class Spending
         $found = [];
         foreach (self::$categories as $category => $words) {
             foreach ($words as $word) {
-                $res = DB::query("SELECT * FROM `spendings` WHERE `name` LIKE '%" . $word . "%'" . $dates_sql);
-                //print_r("SELECT * FROM `spendings` WHERE `name` LIKE '%" . $word . "%'" . $dates_sql);
+                $res = PDOW::query("SELECT * FROM `expenses` WHERE `name` LIKE '%" . $word . "%'" . $dates_sql);
+                //print_r("SELECT * FROM `expenses` WHERE `name` LIKE '%" . $word . "%'" . $dates_sql);
                 if ($res->rowCount()) {
                     foreach ($res as $spending) {
                         if (!isset($found[$spending['id']])) {
@@ -59,12 +59,12 @@ class Spending
         $dates_sql = "";
         if ($date_from) $dates_sql .= "WHERE `created_at` >= '" . $date_from . "'";
         if ($date_to) $dates_sql .= " AND `created_at` <= '" . $date_to . "'";
-        $res = DB::query("SELECT sum(val) FROM `spendings`" . $dates_sql);
+        $res = PDOW::query("SELECT sum(val) FROM `expenses`" . $dates_sql);
         return $res->fetchColumn();
     }
     public function getTotal()
     {
-        $query = DB::query("SELECT sum(val) as summa FROM `spendings`");
+        $query = PDOW::query("SELECT sum(val) as summa FROM `expenses`");
         if (!$spending_sum = $query->fetchColumn()) $spending_sum = 0;
         return $spending_sum;
     }
@@ -74,13 +74,13 @@ class Spending
         $spendings_with_category = [];
         foreach (self::$categories as $category => $words) {
             foreach ($words as $word) {
-                $res = DB::query("SELECT * FROM `spendings` WHERE `name` LIKE '%" . $word . "%'");
+                $res = PDOW::query("SELECT * FROM `expenses` WHERE `name` LIKE '%" . $word . "%'");
                 foreach ($res as $spending) {
                     $spendings_with_category[$spending['id']] = $spending;
                 }
             }
         }
-        $res = DB::query("SELECT * FROM `spendings`");
+        $res = PDOW::query("SELECT * FROM `expenses`");
         $spendings_without_category = [];
         foreach ($res as $spending) {
             if (!isset($spendings_with_category[$spending['id']])) $spendings_without_category[$spending['id']] = $spending;
@@ -92,10 +92,10 @@ class Spending
     public function add($name, $val)
     {
         $params = [':name' => $name, ':val' => $val];
-        $query = DB::prepare("INSERT INTO `spendings` SET `name`=:name, `val`=:val");
+        $query = PDOW::prepare("INSERT INTO `expenses` SET `name`=:name, `val`=:val");
         $query->execute($params);            
         if ($query->rowCount()) {
-            return DB::lastInsertId();
+            return PDOW::lastInsertId();
         } else {
             return false;
         }
@@ -108,14 +108,24 @@ class Spending
         if ($where_sql && $date_to) $where_sql .= " AND ";
         if ($date_to) $where_sql .= "created_at <= '" . $date_to . "'";
         if ($where_sql) $where_sql = " WHERE " . $where_sql;
-        return DB::query("SELECT * FROM `spendings` " . $where_sql);
+        return PDOW::query("SELECT * FROM `expenses` " . $where_sql);
+    }
+
+    public function getPeriodSum($period)
+    {
+        $minDate = $period[0];
+        $maxDate = $period[1];
+        $params = [':minDate' => $minDate, ':maxDate' => $maxDate];
+        $query = PDOW::prepare("SELECT sum(`val`) FROM `expenses` WHERE `created_at`>=:minDate AND `created_at`<=:maxDate");
+        $query->execute($params);            
+        return intval($query->fetchColumn());
     }
 
     public function month()
     {
         $begin = DateCalc::getFirstDayOfPreviousMonth([date('m'), date('Y')]);
         $dateFrom = "{$begin[0]}.{$begin[1]}.{$begin[2]}";
-        $spendings = DB::query("SELECT * FROM `spendings` WHERE `created_at` > '$dateFrom'");
+        $spendings = PDOW::query("SELECT * FROM `expenses` WHERE `created_at` > '$dateFrom'");
         $dates = [];
         //Прохожу по тратам
         foreach ($spendings as $spending) {
@@ -147,5 +157,4 @@ class Spending
         ksort($dates, SORT_NATURAL);
         return $dates;
     }
-
 }
