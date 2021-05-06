@@ -147,9 +147,14 @@ class DateCalc
     }
 
     //Получить номер недели в рамках года по дате
-    public static function getWeekNumberOfYearByDay($day)
+    public static function getWeekNumberOfYear($day)
     {
         $date = new DateTime($day);
-        return $date->format("W");
+        return intval($date->format("W"));
+    }
+
+    public static function getToday()
+    {
+        return date("Y-m-d");
     }
 }

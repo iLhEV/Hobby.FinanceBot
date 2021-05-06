@@ -24,14 +24,28 @@ class GeneralReport
     public function create()
     {
         $minDate = '2021-02-27';
-        $maxDate = '2021-04-03';
+        $maxDate = DateCalc::getToday();
         $iterator = new TimelineIterator([$minDate, $maxDate]);
         while(!$iterator->nextIsLast()) {
             //p("---");                        
-            if ($iterator->getNum() === 1) p($iterator->getCurrent('month_ru'));
-            p($iterator->getCurrent());
-            if ($iterator->getNext() && $iterator->getCurrent('month') !== $iterator->getNext('month')) {
-                p($iterator->getNext('month_ru'));
+            if ($iterator->getNum() === 1) {
+                self::printWeekName($iterator->getNext('week'));
+            }
+            if (    ($iterator->getPrev()
+                    && $iterator->getCurrent('month') !== $iterator->getPrev('month'))
+                    || $iterator->getNum() === 1
+                ) {
+                self::printDayNameWithMonthLabel($iterator->getCurrent(), $iterator->getCurrent('month_ru'));
+            } else {
+                self::printDayName($iterator->getCurrent());
+            }
+            if ($iterator->getNext()) {
+                if ($iterator->getCurrent('month') !== $iterator->getNext('month')) {
+                    //p($iterator->getNext('month_ru'));
+                }
+                if ($iterator->getCurrent('week') !== $iterator->getNext('week')) {
+                    self::printWeekName($iterator->getNext('week'));
+                }
             }
             //p("---");            
             $iterator = $iterator->next();
@@ -39,6 +53,21 @@ class GeneralReport
         return;
         $this->sumsByDays = $this->getSumsByDays();
         $this->getSumsByWeeks();
+    }
+
+    private static function printWeekName($name)
+    {
+        p("  " . $name);
+    }
+
+    private static function printDayName($name)
+    {
+        p("    " . $name);
+    }
+
+    private static function printDayNameWithMonthLabel($day, $month)
+    {
+        p("    " . $day . "   <-- " . $month);
     }
 
     public function setStartDate($date)
@@ -105,7 +134,7 @@ class GeneralReport
     {
         $weeks = [];
         foreach ($this->sumsByDays as $day => $sum) {
-            $weekNum = DateCalc::getWeekNumberOfYearByDay($day);
+            $weekNum = DateCalc::getWeekNumberOfYear($day);
             if (!isset($weeks[$weekNum])) {
                 $weekTmp = &$weeks[$weekNum];
                 $weekTmp = new WeekSpendings();

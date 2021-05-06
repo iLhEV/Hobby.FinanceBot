@@ -68,6 +68,8 @@ class TimelineIterator
             case "month_ru":
                 return DateCalc::getMonthName(DateCalc::getMonth($resultDate));
                 break;
+            case "week":
+                return DateCalc::getWeekNumberOfYear($resultDate);
             default:
                 return $resultDate;
                 break;
