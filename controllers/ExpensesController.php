@@ -6,7 +6,7 @@ use Facades\Expense;
 use Facades\Tlgr;
 use Classes\DateFilter;
 use Classes\DateCalc;
-use Models\YearExpensesReport;
+use Models\ExpensesReport;
 
 class ExpensesController
 {
@@ -92,8 +92,8 @@ class ExpensesController
     //Траты по временной шкале
     public function timeline()
     {
-        $yearExpensesReport = new YearExpensesReport("2021-02-20", DateCalc::getToday());
-        $yearExpensesReport->create();
+        $expensesReport = new ExpensesReport("2021-02-20", DateCalc::getToday());
+        $expensesReport->create();
     }
     //Преобразование в русские дни недели
     public function dayOfWeekToRussian($dayOfWeekEng, $short = false)

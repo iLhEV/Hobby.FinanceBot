@@ -2,7 +2,7 @@
 
 namespace Models;
 
-class YearExpensesReport
+class ExpensesReport
 {
     private $minDate = '';
     private $maxDate = '';
@@ -16,7 +16,7 @@ class YearExpensesReport
     public function create()
     {
         $collector = new YearExpensesCollector();
-        $yearReport = new YearReport($this->minDate, $this->maxDate, $collector);
+        $yearReport = new YearReport($this->minDate, $this->maxDate, $collector, ['no-days', 'no-weeks', 'month-no-zero-sums']);
         $yearReport->create();        
     }
 }
