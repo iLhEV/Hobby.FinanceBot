@@ -22,9 +22,14 @@ class Rules
         $rule->activateDateFilter();                
         $this->rulesProcessor->addRule($rule);
 
-        $rule = new Rule('траты месяца');
-        $rule->addExactMatches(['траты_месяца', 'трм']);
-        $rule->addResolution('ExpensesController', 'timeline');
+        $rule = new Rule('отчёт расходы');
+        $rule->addExactMatches(['отчёт расходы', 'отр']);
+        $rule->addResolution('ExpensesController', 'expensesReport');
+        $this->rulesProcessor->addRule($rule);
+
+        $rule = new Rule('отчёт расходы месяца');
+        $rule->addExactMatches(['отчёт расходы месяца', 'отрм']);
+        $rule->addResolution('ExpensesController', 'expensesReportMonths');
         $this->rulesProcessor->addRule($rule);
 
         $rule = new Rule('установка значения баланса');

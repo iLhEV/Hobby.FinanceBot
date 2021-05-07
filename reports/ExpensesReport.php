@@ -1,6 +1,9 @@
 <?php
 
-namespace Models;
+namespace Reports;
+
+use Collectors\CalendarCollector;
+use Reports\CalendarReport;
 
 class ExpensesReport
 {
@@ -15,8 +18,8 @@ class ExpensesReport
 
     public function create()
     {
-        $collector = new YearExpensesCollector();
-        $yearReport = new YearReport($this->minDate, $this->maxDate, $collector, ['no-days', 'no-weeks', 'month-no-zero-sums']);
+        $collector = new CalendarCollector();
+        $yearReport = new CalendarReport($this->minDate, $this->maxDate, $collector, ['no-days', 'no-weeks', 'month-no-zero-sums']);
         $yearReport->create();        
     }
 }

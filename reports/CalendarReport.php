@@ -1,16 +1,11 @@
 <?php
 
-namespace Models;
+namespace Reports;
 
-use Classes\DateCalc;
-use Classes\TimelineIterator;
-use Facades\DB;
-use \DateInterval;
-use \DateTime;
-use \DatePeriod;
 use Classes\MoneyFormat;
-
-class YearReport
+use Iterators\TimelineIterator;
+ 
+class CalendarReport
 {
     private $list = [];
     private $minDate = "";

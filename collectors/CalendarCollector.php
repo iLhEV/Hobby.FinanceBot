@@ -1,10 +1,11 @@
 <?php
 
-namespace Models;
-use Classes\DateCalc;
+namespace Collectors;
 
+use Classes\DateCalc;
 use Facades\Expense;
-class YearExpensesCollector
+
+class CalendarCollector
 {
     private $weekSums = [];
     private $monthSums = [];

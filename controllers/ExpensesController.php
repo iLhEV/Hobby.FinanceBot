@@ -6,7 +6,7 @@ use Facades\Expense;
 use Facades\Tlgr;
 use Classes\DateFilter;
 use Classes\DateCalc;
-use Models\ExpensesReport;
+use Reports\ExpensesReport;
 
 class ExpensesController
 {
@@ -89,8 +89,14 @@ class ExpensesController
     {
         return number_format($val, 0, '', ' ');
     }
-    //Траты по временной шкале
-    public function timeline()
+    //Отчёт расходы общий
+    public function expensesReport()
+    {
+        $expensesReport = new ExpensesReport("2021-02-20", DateCalc::getToday());
+        $expensesReport->create();
+    }
+    //Отчёт расходы по месяцам
+    public function expensesReportMonths()
     {
         $expensesReport = new ExpensesReport("2021-02-20", DateCalc::getToday());
         $expensesReport->create();
