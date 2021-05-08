@@ -22,13 +22,13 @@ class Rules
         $rule->activateDateFilter();                
         $this->rulesProcessor->addRule($rule);
 
-        $rule = new Rule('отчёт расходы');
-        $rule->addExactMatches(['отчёт расходы', 'отр']);
-        $rule->addResolution('ExpensesController', 'expensesReport');
+        $rule = new Rule('отчёт расходы по неделям');
+        $rule->addExactMatches(['отчёт расходы по неделям', 'отр']);
+        $rule->addResolution('ExpensesController', 'expensesReportWeeks');
         $this->rulesProcessor->addRule($rule);
 
-        $rule = new Rule('отчёт расходы месяца');
-        $rule->addExactMatches(['отчёт расходы месяца', 'отрм']);
+        $rule = new Rule('отчёт расходы по месяцам');
+        $rule->addExactMatches(['отчёт расходы по месяцам', 'отрм']);
         $rule->addResolution('ExpensesController', 'expensesReportMonths');
         $this->rulesProcessor->addRule($rule);
 

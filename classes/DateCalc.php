@@ -179,4 +179,18 @@ class DateCalc
         return self::getYearWeekNumber(date("Y"));
     }
 
+    //Конвертация времени/даты
+    public static function convert($pattern, $val)
+    {
+        return date($pattern, strtotime($val));
+    }
+
+    //Конвертация времени/даты, содержащихся в элементах массива
+    public static function convertArr($pattern, &$arr)
+    {
+        foreach ($arr as &$val) {
+            $val = self::convert($pattern, $val);
+        }
+    }
+
 }

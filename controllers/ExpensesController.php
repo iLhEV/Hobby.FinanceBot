@@ -89,17 +89,24 @@ class ExpensesController
     {
         return number_format($val, 0, '', ' ');
     }
-    //Отчёт расходы общий
-    public function expensesReport()
+    //Отчёт расходы по неделям
+    public function expensesReportWeeks()
     {
         $expensesReport = new ExpensesReport("2021-02-20", DateCalc::getToday());
+        $expensesReport->chooseVariant("weeks");
         $expensesReport->create();
     }
     //Отчёт расходы по месяцам
     public function expensesReportMonths()
     {
         $expensesReport = new ExpensesReport("2021-02-20", DateCalc::getToday());
+        $expensesReport->chooseVariant("months");
         $expensesReport->create();
+    }
+    //Смешанный отчёт по месяцам + неделям
+    public function expensesReportMixed()
+    {
+        //$this->
     }
     //Преобразование в русские дни недели
     public function dayOfWeekToRussian($dayOfWeekEng, $short = false)

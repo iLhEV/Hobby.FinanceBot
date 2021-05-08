@@ -4,8 +4,9 @@ namespace Classes;
 
 class MoneyFormat
 {
-    public static function format($val)
+    //Форматирует в рубль и при необходимости "подгоняет" строку под заданную длину
+    public static function format($val, $currency = "")
     {
-        return number_format($val, 0, ".", ",") . " руб";
+        return number_format($val, 0, ".", ",") . " " . $currency;
     }
 }

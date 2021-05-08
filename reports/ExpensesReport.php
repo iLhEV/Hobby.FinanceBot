@@ -9,6 +9,7 @@ class ExpensesReport
 {
     private $minDate = '';
     private $maxDate = '';
+    private $config = [];
 
     public function __construct($minDate, $maxDate)
     {
@@ -19,7 +20,19 @@ class ExpensesReport
     public function create()
     {
         $collector = new CalendarCollector();
-        $yearReport = new CalendarReport($this->minDate, $this->maxDate, $collector, ['no-days', 'no-weeks', 'month-no-zero-sums']);
+        $yearReport = new CalendarReport($this->minDate, $this->maxDate, $collector, $this->config);
         $yearReport->create();        
+    }
+
+    public function chooseVariant($variant)
+    {
+        switch ($variant):
+            case "weeks":
+                $this->config = ['no-days', 'no-months', 'no-weeks-zero-values', 'week-interval-label'];
+            break;
+            case "months":
+                $this->config = ['no-days', 'no-weeks', 'no-months-zero-values', 'month-no-day'];
+            break;
+        endswitch;
     }
 }
