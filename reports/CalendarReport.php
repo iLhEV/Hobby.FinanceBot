@@ -81,8 +81,7 @@ class CalendarReport
             //p("---");            
             $iterator = $iterator->next();
         }
-        $this->printResult();
-        return;
+        return $this->getResultText();
     }
 
     private function inConfig($param)
@@ -150,8 +149,8 @@ class CalendarReport
         $this->resultText .= $text;
     }
 
-    public function printResult()
+    public function getResultText()
     {
-        p($this->resultText);
+        return $this->resultText;
     }
 }

@@ -23,13 +23,18 @@ class Rules
         $this->rulesProcessor->addRule($rule);
 
         $rule = new Rule('отчёт расходы по неделям');
-        $rule->addExactMatches(['отчёт расходы по неделям', 'отр']);
+        $rule->addExactMatches(['отчёт расходы по неделям', 'отрн']);
         $rule->addResolution('ExpensesController', 'expensesReportWeeks');
         $this->rulesProcessor->addRule($rule);
 
         $rule = new Rule('отчёт расходы по месяцам');
         $rule->addExactMatches(['отчёт расходы по месяцам', 'отрм']);
         $rule->addResolution('ExpensesController', 'expensesReportMonths');
+        $this->rulesProcessor->addRule($rule);
+
+        $rule = new Rule('отчёт расходы смешанный');
+        $rule->addExactMatches(['отчёт расходы смешанный', 'отрс']);
+        $rule->addResolution('ExpensesController', 'expensesReportMixed');
         $this->rulesProcessor->addRule($rule);
 
         $rule = new Rule('установка значения баланса');

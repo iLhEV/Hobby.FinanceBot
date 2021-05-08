@@ -21,7 +21,7 @@ class ExpensesReport
     {
         $collector = new CalendarCollector();
         $yearReport = new CalendarReport($this->minDate, $this->maxDate, $collector, $this->config);
-        $yearReport->create();        
+        return $yearReport->create();        
     }
 
     public function chooseVariant($variant)

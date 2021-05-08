@@ -2,7 +2,7 @@
 
 use Facades\Tlgr;
 
-function p($value = "")
+function p($value = "", $return = false)
 {
     if (is_array($value)) {
         foreach ($value as $key => $val) {
@@ -11,11 +11,15 @@ function p($value = "")
         }
         return;
     }
-    if ($GLOBALS['http_answer']) {
-        print_r($value);
-        echo PHP_EOL;
+    if ($return) {
+        return $value . PHP_EOL;
     } else {
-        Tlgr::sendMessage($value . PHP_EOL);
+        if ($GLOBALS['http_answer']) {
+            print_r($value);
+            echo PHP_EOL;
+        } else {
+            Tlgr::sendMessage($value . PHP_EOL);
+        }
     }
 }
 

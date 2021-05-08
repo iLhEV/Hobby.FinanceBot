@@ -90,23 +90,27 @@ class ExpensesController
         return number_format($val, 0, '', ' ');
     }
     //Отчёт расходы по неделям
-    public function expensesReportWeeks()
+    public function expensesReportWeeks($return = false)
     {
         $expensesReport = new ExpensesReport("2021-02-20", DateCalc::getToday());
         $expensesReport->chooseVariant("weeks");
-        $expensesReport->create();
+        return p($expensesReport->create(), $return);
     }
     //Отчёт расходы по месяцам
-    public function expensesReportMonths()
+    public function expensesReportMonths($return = false)
     {
         $expensesReport = new ExpensesReport("2021-02-20", DateCalc::getToday());
         $expensesReport->chooseVariant("months");
-        $expensesReport->create();
+        return p($expensesReport->create(), $return);
     }
     //Смешанный отчёт по месяцам + неделям
     public function expensesReportMixed()
     {
-        //$this->
+        $text = "Отчёт по месяцам" . PHP_EOL;
+        $text .= $this->expensesReportMonths(true);
+        $text .= "Отчёт по неделям" . PHP_EOL;
+        $text .= $this->expensesReportWeeks(true);
+        p($text);
     }
     //Преобразование в русские дни недели
     public function dayOfWeekToRussian($dayOfWeekEng, $short = false)
