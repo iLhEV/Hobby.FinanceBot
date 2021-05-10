@@ -33,7 +33,7 @@ class Rules
         $this->rulesProcessor->addRule($rule);
 
         $rule = new Rule('отчёт расходы смешанный');
-        $rule->addExactMatches(['отчёт расходы смешанный', 'о']);
+        $rule->addExactMatches(['отчёт расходы смешанный', 'отрс', 'о']);
         $rule->addResolution('ExpensesController', 'expensesReportMixed');
         $this->rulesProcessor->addRule($rule);
 

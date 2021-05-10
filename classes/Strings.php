@@ -18,7 +18,7 @@ class Strings
     }
 
     //Дополняет строку до заданной длины фрагментом текста
-    public static function growStringToSpecifiedLength($string, $fragment, $goalLength)
+    public static function growStringToSpecifiedLength($string, $fragment, $goalLength, $textAlign = "left")
     {
         $additionalLength = $goalLength - mb_strlen($string);
         if ($additionalLength) {
@@ -26,6 +26,11 @@ class Strings
         } else {
             $additionalString = "";
         }
-        return $string . $additionalString;
+        if ($textAlign === "right") {
+            
+            return $additionalString . $string;
+        } else {
+            return $string . $additionalString;
+        }
     }
 }

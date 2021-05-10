@@ -113,7 +113,8 @@ class CalendarReport
         DateCalc::convertArr("d.m", $period);
         $this->addToResult(
             $weekNum . "нед   " .
-            Strings::growStringToSpecifiedLength(MoneyFormat::format($value, ""), " ", 9) .
+            Strings::growStringToSpecifiedLength(MoneyFormat::format($value, ""), " ", 9, "right") .
+            "  ".
             ($this->inConfig('week-interval-label') ? $period[0] . " - " . $period[1] : "").
             PHP_EOL
         );
@@ -131,7 +132,12 @@ class CalendarReport
 
     private function printMonthName($month, $value = null)
     {
-        $this->addToResult(Strings::growStringToSpecifiedLength($month, " ", 10) . "   " . MoneyFormat::format($value, "") . PHP_EOL);
+        $this->addToResult(
+            Strings::growStringToSpecifiedLength($month, " ", 10) .
+            "  " .
+            Strings::growStringToSpecifiedLength(MoneyFormat::format($value, ""), " ", 9, "right")
+            . PHP_EOL
+        );
     }
 
     public function setMinDate($date)
