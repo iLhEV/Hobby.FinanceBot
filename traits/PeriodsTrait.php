@@ -6,6 +6,17 @@ use \DateTime;
 
 trait PeriodsTrait
 {
+    //Время нулевой секунды текущего года
+    public static function getCurrentYearFirstTime()
+    {
+        return date("Y-01-01 00:00:00");
+    }
+
+    public static function getCurrentTime()
+    {
+        return date("Y-m-d H:i:s");
+    }
+
     //Дата последнего дня заданного месяца и года
     public static function getMonthLastDay($date)
     {

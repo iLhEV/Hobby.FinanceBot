@@ -112,8 +112,8 @@ class CalendarReport
         $period = DateCalc::getFirstAndLastDayOfWeekForCurrentYear($weekNum);
         DateCalc::convertArr("d.m", $period);
         $this->addToResult(
-            $weekNum . "нед     " .
-            Strings::growStringToSpecifiedLength(MoneyFormat::format($value, "", 10), " ", 12) .
+            $weekNum . "нед   " .
+            Strings::growStringToSpecifiedLength(MoneyFormat::format($value, ""), " ", 9) .
             ($this->inConfig('week-interval-label') ? $period[0] . " - " . $period[1] : "").
             PHP_EOL
         );

@@ -2,7 +2,7 @@
 
 use Facades\Tlgr;
 
-function p($value = "", $return = false)
+function p($value = "", $return = false, $pre = false)
 {
     if (is_array($value)) {
         foreach ($value as $key => $val) {
@@ -18,7 +18,7 @@ function p($value = "", $return = false)
             print_r($value);
             echo PHP_EOL;
         } else {
-            Tlgr::sendMessage($value . PHP_EOL);
+            Tlgr::sendMessage($value . PHP_EOL, $pre);
         }
     }
 }

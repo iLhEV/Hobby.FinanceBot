@@ -4,8 +4,8 @@ namespace Controllers;
 
 use Facades\Expense;
 use Facades\Tlgr;
-use Classes\DateFilter;
 use Classes\DateCalc;
+use Classes\MoneyFormat;
 use Reports\ExpensesReport;
 
 class ExpensesController
@@ -103,14 +103,23 @@ class ExpensesController
         $expensesReport->chooseVariant("months");
         return p($expensesReport->create(), $return);
     }
+    public function expensesReportYear($return = false)
+    {
+        $sum = Expense::getPeriodSum([DateCalc::getCurrentYearFirstTime(), DateCalc::getCurrentTime()]);
+        $sum = MoneyFormat::format($sum);
+        return p($sum, $return);
+    }
     //Смешанный отчёт по месяцам + неделям
     public function expensesReportMixed()
     {
-        $text = "Отчёт по месяцам" . PHP_EOL;
-        $text .= $this->expensesReportMonths(true);
-        $text .= "Отчёт по неделям" . PHP_EOL;
+        $text = "";
+        $text .= "Расходы по неделям" . PHP_EOL;
         $text .= $this->expensesReportWeeks(true);
-        p($text);
+        $text .= "Расходы по месяцам" . PHP_EOL;
+        $text .= $this->expensesReportMonths(true);
+        $text .= "Расходы за год" . PHP_EOL;
+        $text .= $this->expensesReportYear(true);
+        p($text, false, true);
     }
     //Преобразование в русские дни недели
     public function dayOfWeekToRussian($dayOfWeekEng, $short = false)
