@@ -72,6 +72,9 @@ class RegExp
         if (preg_match('/string/', $reg)) {
             return 4;
         }
+        if (preg_match('/year\-month/', $reg)) {
+            return 5;
+        }
     }
     public static function search($phrase, $text)
     {

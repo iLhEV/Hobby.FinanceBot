@@ -15,6 +15,13 @@ class Rules
     }
     public function create()
     {
+        //Правила для фотоальбома
+        $rule = new Rule('список фото за указанный месяц года');
+        $rule->addPatternMatch('список фото за {year-month}');
+        $rule->addResolution('PhotoController', 'get');
+        //$rule->activateDateFilter();
+        $this->rulesProcessor->addRule($rule); 
+
         $rule = new Rule('просмотр баланса');
         $rule->addExactMatches(['б', 'бал', 'баланс']);
         $rule->addResolution('BalanceController', 'get');
@@ -73,7 +80,7 @@ class Rules
         $rule->addPatternMatch('тр|траты|трат|расх|расходы');
         $rule->addResolution('ExpensesController', 'get');
         $rule->activateDateFilter();
-        $this->rulesProcessor->addRule($rule);        
+        $this->rulesProcessor->addRule($rule); 
     }
     public function process($text)
     {

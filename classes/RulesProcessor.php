@@ -37,37 +37,38 @@ class RulesProcessor
             return 1;
         } else {
             //Неоднозначными могут быть правила только с одинаковым приоритетом...
+            //Поэтому прежде чем признать правила неоднозначными выясню, есть ли среди них правило, у которого приоритет больше всех
+            $rulesPrioritiesCount = [];
+            $rulesPrioritiesKeys = [];
             $respBody = "";
-            $priorityWinnerKey = null;
-            $previousKey = null;
-            //Определение приоритета работает пока только для двух правил
-            foreach ($this->resolvedRules as $key => $rule) {
-                p($rule->getName());
-                p($rule->getPriority());
-                if($key > 0) {
-                    $previousKey = $key - 1;
-                    $previousRule = $this->resolvedRules[$previousKey];
-                    if ($rule->getPriority() > $previousRule->getPriority()) {
-                        $priorityWinnerKey = $key; 
-                    } elseif ($rule->getPriority() < $previousRule->getPriority()) {
-                        $priorityWinnerKey = $previousKey; 
-                    } else {
-                        $respBody .= "#" . $key . " " . $rule->getName() . PHP_EOL;
-                    }
-                } 
+            //Собираю в массив $rulesPriorities: ключ = приоритет, значение = кол-во правил с таким приоритетом
+            foreach ($this->resolvedRules as $ruleKey => $rule) {
+                // p("Имя правила: " . $rule->getName());
+                // p("Приоритет правила: " . $rule->getPriority());
+                if (!isset($rulesPrioritiesCount[$rule->getPriority()])) {
+                    $rulesPrioritiesCount[$rule->getPriority()] = 1;
+                    $rulesPrioritiesKeys[$rule->getPriority()] = [];
+                } else {
+                    $rulesPrioritiesCount[$rule->getPriority()]++;
+                }
+                $rulesPrioritiesKeys[$rule->getPriority()][] = $ruleKey;
             }
-            p("pwk: " . $priorityWinnerKey);
-            if ($respBody !== ""){
-                $resp = 'Запрос неоднозначен. Выберете вариант:' . PHP_EOL;
-                //Store::getInstance('bot')->setState(2);
-                //Store::getInstance('bot')->setPendingRules($this->resolvedRules);
-                Tlgr::sendMessage($resp);
-                return 2;
-            } else {
+            $maxPriority = max(array_keys($rulesPrioritiesCount));
+            //p("Приоритет выигравшего правила: " . $priorityWinnerKey);
+            // exit;
+            //Если количество правил-победителей с максимальным приоритетом ровно одному, то правило однозначно
+            if ($rulesPrioritiesCount[$maxPriority] === 1) {
                 //Срабатывает правило-победитель
-                //Здесь надо переписать будет, потому что дублирует тригер выше по коду, а может и не надо =)
-                $this->resolvedRules[$priorityWinnerKey]->trigger();
+                $this->resolvedRules[$rulesPrioritiesKeys[$maxPriority][0]]->trigger();
                 return 3;
+            } else {
+                $resp = 'Запрос неоднозначен. Выберете вариант:' . PHP_EOL;
+                foreach ($rulesPrioritiesKeys[$maxPriority] as $ruleKey) {
+                    $rule = $this->resolvedRules[$rulesPrioritiesKeys[$maxPriority][$ruleKey]];
+                    $resp .= "#" . $ruleKey . " " . $rule->getName() . PHP_EOL;
+                }
+                p($resp);
+                return 2;
             }
         }
     }
